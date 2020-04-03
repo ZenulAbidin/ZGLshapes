@@ -41,12 +41,33 @@
 #ifndef Z_BASE_H
 #define Z_BASE_H
 
-#include <QMath>
+#define _USE_MATH_DEFINES
+#include <tgmath.h>
+#include <QtMath>
 
 namespace z_qtshapes {
 
-        const MAX_ROTATIONS = 16;
+    const int MAX_ROTATIONS = 16;
+    
+    inline int normalizedAngle(int a)
+    {
+        int b = a % 360;
+        return (b < 0) ? 360 + b : b;
+    }
 
+    inline qreal normalizedAngle(qreal a)
+    {
+        qreal b = fmod(a, 360.0);
+        return (b < 0.0) ? 360.0 + b : b;
+    }
+/*
+        while (a < 0)
+            a += 360 * MAX_ROTATIONS;
+        while (angle >= 360 * MAX_ROTATIONS)
+            a -= 360 * MAX_ROTATIONS;
+        return a;
+    }
+*/
 }
 
 #endif

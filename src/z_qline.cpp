@@ -38,14 +38,13 @@
 **
 ****************************************************************************/
 
-#include "z_line.h"
-#include <QMath>
+#include "z_qline.h"
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/geometries/register/segment.hpp>
+//#include <boost/geometry/geometries/register/segment.hpp>
 BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(QPointF, qreal, boost::geometry::cs::cartesian, x, y, setX, setY);
-BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(QPoint, int, boost::geometry::cs::cartesian, x, y, setX, setY);
-BOOST_GEOMETRY_REGISTER_SEGMENT(QLineF, QPointF, p1, p2);
+//BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(QPoint, int, boost::geometry::cs::cartesian, x, y, setX, setY);
+//BOOST_GEOMETRY_REGISTER_SEGMENT(QLineF, QPointF, p1, p2);
 
 
 namespace z_qtshapes {
@@ -116,6 +115,13 @@ namespace z_qtshapes {
         Returns a printable string of the line.
     */
 
+
+    QString ZQLine::toString() const noexcept
+    {
+        return QString("ZQLine(%1,%2 to %3,%4 %5 degrees)").arg(QString::number(pt1.x()),
+             QString::number(pt1.y()), QString::number(pt2.x()), QString::number(pt2.y()), QString::number(a));
+    }
+
     /*!
         \fn QPainterPath ZQLine::toPath()
 
@@ -131,7 +137,7 @@ namespace z_qtshapes {
         drawn on the screen.
     */
 
-    constexpr QPainterPath ZQLine::toPath() const noexcept
+    QPainterPath ZQLine::toPath() const noexcept
     {
         QPainterPath path;
         QPointF c1 = QPointF(p1());
@@ -139,9 +145,9 @@ namespace z_qtshapes {
         QPointF cn = QPointF(center());
 
         QPointF c1a, c2a;
-        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(first.angle());
-        boost::geometry::transform(c1 - cn, c1a, rotate);
-        boost::geometry::transform(c2 - cn, c2a, rotate);
+        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> r(angle());
+        boost::geometry::transform(c1 - cn, c1a, r);
+        boost::geometry::transform(c2 - cn, c2a, r);
         c1a += cn;
         c2a += cn;
 
@@ -151,7 +157,7 @@ namespace z_qtshapes {
         return path;
     }
 
-    constexpr QPainterPath ZQLine::toPath(const QMatrix3x3 &mat, const QPoint& ref) const noexcept
+    QPainterPath ZQLine::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
     {
         QPainterPath path;
         QPointF c1 = QPointF(p1());
@@ -159,9 +165,9 @@ namespace z_qtshapes {
         QPointF cn = QPointF(center());
 
         QPointF c1a, c2a;
-        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(first.angle());
-        boost::geometry::transform(c1 - cn, c1a, rotate);
-        boost::geometry::transform(c2 - cn, c2a, rotate);
+        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> r(angle());
+        boost::geometry::transform(c1 - cn, c1a, r);
+        boost::geometry::transform(c2 - cn, c2a, r);
         c1a += cn;
         c2a += cn;
 
@@ -252,9 +258,9 @@ namespace z_qtshapes {
         Positive values for the angles mean counter-clockwise while negative values
         mean the clockwise direction. Zero degrees is at the 3 o'clock position.
     */
-    static ZQLine ZQLine::fromPolar(int length, int angle) const noexcept
+    ZQLine ZQLine::fromPolar(int length, int angle) noexcept
     {
-        const qreal angleR = angle * M_2PI / 360.0;
+        const qreal angleR = angle * M_2_PI / 360.0;
         return ZQLine(0, 0, (int) (qCos(angleR) * length), int(-qSin(angleR) * length));
     }
 
@@ -274,27 +280,82 @@ namespace z_qtshapes {
     */
 
     /*!
-        \fn void ZQLine::translate(const QPoint &offset)
+        \fn void ZQLine::adjust(const QPoint &offset)
         Translates this line by the given \a offset.
     */
 
     /*!
-        \fn void ZQLine::translate(int dx, int dy)
+        \fn void ZQLine::adjust(const QPoint &offset, int angle)
+        Translates this line by the given \a offset and \a angle in degrees.
+    */
+
+    /*!
+        \fn void ZQLine::adjustRadians(const QPoint &offset, qreal angle)
+        Translates this line by the given \a offset and \a angle in radians.
+    */
+
+    /*!
+        \fn void ZQLine::adjust(int dx, int dy)
         \overload
         Translates this line the distance specified by \a dx and \a dy.
     */
 
     /*!
-        \fn ZQLine ZQLine::translated(const QPoint &offset) const
+        \fn void ZQLine::adjust(int dx, int dy, int angle)
+        \overload
+        Translates this line the distance specified by \a dx and \a dy,
+        and an \a angle in degrees.
+    */
+
+    /*!
+        \fn void ZQLine::adjustRadians(int dx, int dy, qreal angle)
+        \overload
+        Translates this line the distance specified by \a dx and \a dy,
+        and an \a angle in radians.
+    */
+
+    /*!
+        \fn ZQLine ZQLine::adjusted(const QPoint &offset) const
         \since 4.4
         Returns this line translated by the given \a offset.
     */
 
     /*!
-        \fn ZQLine ZQLine::translated(int dx, int dy) const
+        \fn ZQLine ZQLine::adjusted(const QPoint &offset, int angle) const
+        \since 4.4
+        Returns this line translated by the given \a offset and \a angle
+        in degrees.
+    */
+
+    /*!
+        \fn ZQLine ZQLine::adjustedRadians(const QPoint &offset, qreal angle) const
+        \since 4.4
+        Returns this line translated by the given \a offset and \a angle
+        in radians.
+    */
+
+    /*!
+        \fn ZQLine ZQLine::adjusted(int dx, int dy) const
         \overload
         \since 4.4
         Returns this line translated the distance specified by \a dx and \a dy.
+    */
+
+    /*!
+        \fn ZQLine ZQLine::adjusted(int dx, int dy, int angle) const
+        \overload
+        \since 4.4
+        Returns this line translated the distance specified by \a dx and \a dy,
+        and an \a angle in degrees.
+    */
+
+
+    /*!
+        \fn ZQLine ZQLine::adjustedRadians(int dx, int dy, qreal angle) const
+        \overload
+        \since 4.4
+        Returns this line translated the distance specified by \a dx and \a dy,
+        and an \a angle in radians.
     */
 
     /*!
@@ -361,14 +422,14 @@ namespace z_qtshapes {
 
 
     /*!
-        \fn void ZQLine::setLine(int x1, int y1, int x2, int y2)
+        \fn void ZQLine::setCoords(int x1, int y1, int x2, int y2)
         \since 4.4
         Sets this line to the start in \a x1, \a y1 and end in \a x2, \a y2.
         \sa setP1(), setP2(), p1(), p2()
     */
 
     /*!
-        \fn void ZQLine::setLine(int x1, int y1, int x2, int y2, int angle)
+        \fn void ZQLine::setCoords(int x1, int y1, int x2, int y2, int angle)
         \since 4.4
         Sets this line to the start in \a x1, \a y1, end in \a x2, \a y2,
         and have an angle \a angle in degrees.
@@ -376,7 +437,7 @@ namespace z_qtshapes {
     */
 
     /*!
-        \fn void ZQLine::setLineRadians(int x1, int y1, int x2, int y2, qreal angle)
+        \fn void ZQLine::setCoordsRadians(int x1, int y1, int x2, int y2, qreal angle)
         \since 4.4
         Sets this line to the start in \a x1, \a y1, end in \a x2, \a y2,
         and have an angle \a angle in radians.
@@ -385,55 +446,73 @@ namespace z_qtshapes {
 
 
     /*!
-        \fn bool ZQLine::contains(const QPoint &point, bool proper) const
+        \fn void ZQLine::getCoords(int *x1, int *y1, int *x2, int *y2) const
 
-        Returns \c true if the given \a point is inside or on the edge of
+        Extracts the position of the line's first point to *\a x1
+        and *\a y1, and its second point to *\a x2 and *\a y2.
+
+        \sa setCoords()
+    */
+
+    /*!
+        \fn void ZQLine::getCoords(int *x1, int *y1, int *x2, int *y2, int *angle) const
+
+        Extracts the position of the line's first point to *\a x1
+        and *\a y1, and its second point to *\a x2 and *\a y2, and its angle
+        to *\a angle in degrees.
+
+        \sa setCoords()
+    */
+
+    /*!
+        \fn void ZQLine::getCoordsRadians(int *x1, int *y1, int *x2, int *y2, qreal *angle) const
+
+        Extracts the position of the line's first point to *\a x1
+        and *\a y1, its second point to *\a x2 and *\a y2, and its angle
+        to *\a angle in radians.
+
+        \sa setCoordsRadians()
+    */
+
+
+
+    /*!
+        \fn bool ZQLine::contains(const QPoint &point) const
+
+        Returns \c true if the given \a point is on
         the line, otherwise returns \c false.
 
         \sa intersects()
     */
 
-    bool ZQLine::contains(const QPoint &p, bool proper=false) const noexcept
+    bool ZQLine::contains(const QPoint &p) const noexcept
     {
-        if (isNull() || r.isNull())
+        if (isNull() || p.isNull())
             return false;
 
         const QPainterPath path1 = toPath();
 
-        // FIXME proper=false is not honored because there isn't a way
-        // to test if a point is on the edge.
         return path1.contains(p);
 
     }
-
-
-    /*!
-        \fn bool ZQLine::contains(int x, int y, bool proper) const
-        \overload
-
-        Returns \c true if the point (\a x, \a y) is inside or on the edge of
-        the line, otherwise returns \c false.
-    */
 
     /*!
         \fn bool ZQLine::contains(int x, int y) const
         \overload
 
-        Returns \c true if the point (\a x, \a y) is inside this line,
+        Returns \c true if the point (\a x, \a y) is on this line,
         otherwise returns \c false.
     */
 
     /*!
-        \fn bool ZQLine::contains(const ZQLine &line, bool proper) const
+        \fn bool ZQLine::contains(const ZQLine &line) const
         \overload
 
-        Returns \c true if the given \a line is inside this line.
-        otherwise returns \c false. If \a proper is true, this function only
-        returns \c true if the \a line is entirely inside this
-        line (not on the edge).
+        Returns \c true if the given \a line is on this line.
+        otherwise returns \c false.
     */
 
-    bool ZQLine::contains(const ZQLine &r, bool proper=false) const noexcept
+    bool ZQLine::contains(const ZQLine &r) const noexcept
     {
         if (isNull() || r.isNull())
             return false;
@@ -441,9 +520,6 @@ namespace z_qtshapes {
         const QPainterPath path1 = toPath();
         const QPainterPath path2 = r.toPath();
 
-        if (proper && path1 == path2) {
-            return false;
-        }
         return path1.contains(path2);
    
     }
@@ -457,12 +533,12 @@ namespace z_qtshapes {
         \sa united()
     */
 
-    ZQLine ZQLine::operator|(const ZQLine &r) const noexcept
+    QPainterPath ZQLine::operator|(const ZQLine &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const QPainterPath path1 = toPath();
         const QPainterPath path2 = r.toPath();
@@ -498,9 +574,9 @@ namespace z_qtshapes {
     QPainterPath ZQLine::operator&(const ZQLine &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const QPainterPath path1 = toPath();
         const QPainterPath path2 = r.toPath();
@@ -600,7 +676,7 @@ namespace z_qtshapes {
     {
         QDebugStateSaver saver(dbg);
         dbg.nospace();
-        dbg << toString();
+        dbg << p.toString();
         return dbg;
     }
     #endif
@@ -615,7 +691,7 @@ namespace z_qtshapes {
 
     QDataStream &operator<<(QDataStream &stream, const ZQLine &line)
     {
-        stream << line.p1() << line.p2();
+        stream << line.p1() << line.p2() << line.angle();
         return stream;
     }
 
@@ -629,9 +705,11 @@ namespace z_qtshapes {
     QDataStream &operator>>(QDataStream &stream, ZQLine &line)
     {
         QPoint p1, p2;
+        int a;
         stream >> p1;
         stream >> p2;
-        line = ZQLine(p1, p2);
+        stream >> a;
+        line = ZQLine(p1, p2, a);
 
         return stream;
     }
@@ -759,6 +837,12 @@ namespace z_qtshapes {
         Returns a printable string of the line.
     */
 
+    QString ZQLineF::toString() const noexcept
+    {
+        return QString("ZQLineF(%1,%2 to %3,%4 %5 degrees)").arg(QString::number(pt1.x()),
+            QString::number(pt1.y()), QString::number(pt2.x()), QString::number(pt2.y()), QString::number(a));
+    }
+
     /*!
         \fn QPainterPath ZQLineF::toPath()
 
@@ -774,7 +858,7 @@ namespace z_qtshapes {
         drawn on the screen.
     */
 
-    constexpr QPainterPath ZQLineF::toPath() const noexcept
+    QPainterPath ZQLineF::toPath() const noexcept
     {
         QPainterPath path;
         QPointF c1 = p1();
@@ -782,9 +866,9 @@ namespace z_qtshapes {
         QPointF cn = center();
 
         QPointF c1a, c2a;
-        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(first.angle());
-        boost::geometry::transform(c1 - cn, c1a, rotate);
-        boost::geometry::transform(c2 - cn, c2a, rotate);
+        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> r(angle());
+        boost::geometry::transform(c1 - cn, c1a, r);
+        boost::geometry::transform(c2 - cn, c2a, r);
         c1a += cn;
         c2a += cn;
 
@@ -794,7 +878,7 @@ namespace z_qtshapes {
         return path;
     }
 
-    constexpr QPainterPath ZQLineF::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
+    QPainterPath ZQLineF::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
     {
         QPainterPath path;
         QPointF c1 = p1();
@@ -802,9 +886,9 @@ namespace z_qtshapes {
         QPointF cn = center();
 
         QPointF c1a, c2a;
-        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(first.angle());
-        boost::geometry::transform(c1 - cn, c1a, rotate);
-        boost::geometry::transform(c2 - cn, c2a, rotate);
+        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> r(angle());
+        boost::geometry::transform(c1 - cn, c1a, r);
+        boost::geometry::transform(c2 - cn, c2a, r);
         c1a += cn;
         c2a += cn;
 
@@ -926,7 +1010,7 @@ namespace z_qtshapes {
         Returns the length of the line.
         \sa setLength()
     */
-    qreal ZQLineF::length() const
+    qreal ZQLineF::length() const noexcept
     {
         qreal x = pt2.x() - pt1.x();
         qreal y = pt2.y() - pt1.y();
@@ -940,9 +1024,9 @@ namespace z_qtshapes {
         Positive values for the angles mean counter-clockwise while negative values
         mean the clockwise direction. Zero degrees is at the 3 o'clock position.
     */
-    static fZQLineF ZQLineF::fromPolar(qreal length, qreal angle) const noexcept
+    ZQLineF ZQLineF::fromPolar(qreal length, qreal angle) noexcept
     {
-        const qreal angleR = angle * M_2PI / 360.0;
+        const qreal angleR = angle * M_2_PI / 360.0;
         return ZQLineF(0, 0, qCos(angleR) * length, -qSin(angleR) * length);
     }
 
@@ -951,7 +1035,7 @@ namespace z_qtshapes {
         same point as \e this line with a length of 1.0.
         \sa normalVector()
     */
-    ZQLineF ZQLineF::unitVector() const
+    ZQLineF ZQLineF::unitVector() const noexcept
     {
         qreal x = pt2.x() - pt1.x();
         qreal y = pt2.y() - pt1.y();
@@ -968,29 +1052,85 @@ namespace z_qtshapes {
     }
 
 
+
     /*!
-        \fn void ZQLineF::translate(const QPointF &offset)
+        \fn void ZQLine::adjust(const QPointF &offset)
         Translates this line by the given \a offset.
     */
 
     /*!
-        \fn void ZQLineF::translate(qreal dx, qreal dy)
+        \fn void ZQLineF::adjust(const QPointF &offset, qreal angle)
+        Translates this line by the given \a offset and \a angle in degrees.
+    */
+
+    /*!
+        \fn void ZQLineF::adjustRadians(const QPointF &offset, qreal angle)
+        Translates this line by the given \a offset and \a angle in radians.
+    */
+
+    /*!
+        \fn void ZQLineF::adjust(qreal dx, qreal dy)
         \overload
         Translates this line the distance specified by \a dx and \a dy.
     */
 
     /*!
-        \fn ZQLineF ZQLineF::translated(const QPointF &offset) const
+        \fn void ZQLineF::adjust(qreal dx, qreal dy, qreal angle)
+        \overload
+        Translates this line the distance specified by \a dx and \a dy,
+        and an \a angle in degrees.
+    */
+
+    /*!
+        \fn void ZQLineF::adjustRadians(qreal dx, qreal dy, qreal angle)
+        \overload
+        Translates this line the distance specified by \a dx and \a dy,
+        and an \a angle in radians.
+    */
+
+    /*!
+        \fn ZQLineF ZQLineF::adjusted(const QPointF &offset) const
         \since 4.4
         Returns this line translated by the given \a offset.
     */
 
     /*!
-        \fn ZQLineF ZQLineF::translated(qreal dx, qreal dy) const
+        \fn ZQLineF ZQLineF::adjusted(const QPointF &offset, qreal angle) const
+        \since 4.4
+        Returns this line translated by the given \a offset and \a angle
+        in degrees.
+    */
+
+    /*!
+        \fn ZQLineF ZQLineF::adjustedRadians(const QPointF &offset, qreal angle) const
+        \since 4.4
+        Returns this line translated by the given \a offset and \a angle
+        in radians.
+    */
+
+    /*!
+        \fn ZQLineF ZQLineF::adjusted(qreal dx, qreal dy) const
         \overload
         \since 4.4
         Returns this line translated the distance specified by \a dx and \a dy.
     */
+
+    /*!
+        \fn ZQLineF ZQLineF::adjusted(qreal dx, qreal dy, qreal angle) const
+        \overload
+        \since 4.4
+        Returns this line translated the distance specified by \a dx and \a dy,
+        and an \a angle in degrees.
+    */
+
+    /*!
+        \fn ZQLineF ZQLineF::adjustedRadians(qreal dx, qreal dy, qreal angle) const
+        \overload
+        \since 4.4
+        Returns this line translated the distance specified by \a dx and \a dy,
+        and an \a angle in radians.
+    */
+
 
     /*!
         \fn QPointF ZQLineF::center() const
@@ -1057,14 +1197,14 @@ namespace z_qtshapes {
 
 
     /*!
-        \fn void ZQLineF::setLine(qreal x1, qreal y1, qreal x2, qreal y2)
+        \fn void ZQLineF::setCoords(qreal x1, qreal y1, qreal x2, qreal y2)
         \since 4.4
         Sets this line to the start in \a x1, \a y1 and end in \a x2, \a y2.
         \sa setP1(), setP2(), p1(), p2()
     */
 
     /*!
-        \fn void ZQLineF::setLine(qreal x1, qreal y1, qreal x2, qreal y2, qreal angle)
+        \fn void ZQLineF::setCoords(qreal x1, qreal y1, qreal x2, qreal y2, qreal angle)
         \since 4.4
         Sets this line to the start in \a x1, \a y1, end in \a x2, \a y2,
         and have an angle \a angle in degrees.
@@ -1072,63 +1212,85 @@ namespace z_qtshapes {
     */
 
     /*!
-        \fn void ZQLineF::setLineRadians(qreal x1, qreal y1, qreal x2, qreal y2, qreal angle)
+        \fn void ZQLineF::setCoordsRadians(qreal x1, qreal y1, qreal x2, qreal y2, qreal angle)
         \since 4.4
         Sets this line to the start in \a x1, \a y1, end in \a x2, \a y2,
         and have an angle \a angle in radians.
         \sa setP1(), setP2(), setAngleRadians(), p1(), p2(), angleRadians()
     */
 
-    /*!
-        \fn bool ZQLineF::contains(const QPoint &point, bool proper) const
 
-        Returns \c true if the given \a point is inside or on the edge of
+
+    /*!
+        \fn void ZQLineF::getCoords(qreal *x1, qreal *y1, qreal *x2, qreal *y2) const
+
+        Extracts the position of the line's first point to *\a x1
+        and *\a y1, and its second point to *\a x2 and *\a y2.
+
+        \sa setCoords()
+    */
+
+    /*!
+        \fn void ZQLineF::getCoords(qreal *x1, qreal *y1, qreal *x2, qreal *y2, qreal *angle) const
+
+        Extracts the position of the line's first point to *\a x1
+        and *\a y1, and its second point to *\a x2 and *\a y2, and its angle
+        to *\a angle in degrees.
+
+        \sa setCoords()
+    */
+
+    /*!
+        \fn void ZQLineF::getCoordsRadians(qreal *x1, qreal *y1, qreal *x2, qreal *y2, qreal *angle) const
+
+        Extracts the position of the line's first point to *\a x1
+        and *\a y1, its second point to *\a x2 and *\a y2, and its angle
+        to *\a angle in radians.
+
+        \sa setCoordsRadians()
+    */
+
+
+
+
+    /*!
+        \fn bool ZQLineF::contains(const QPoint &point) const
+
+        Returns \c true if the given \a point is on
         the line, otherwise returns \c false.
 
         \sa intersects()
     */
 
-    bool ZQLineF::contains(const QPoint &p, bool proper=false) const noexcept
+    bool ZQLineF::contains(const QPointF &p) const noexcept
     {
-        if (isNull() || r.isNull())
+        if (isNull() || p.isNull())
             return false;
 
         const QPainterPath path1 = toPath();
 
-        // FIXME proper=false is not honored because there isn't a way
-        // to test if a point is on the edge.
         return path1.contains(p);
 
     }
 
 
     /*!
-        \fn bool ZQLineF::contains(int x, int y, bool proper) const
-        \overload
-
-        Returns \c true if the point (\a x, \a y) is inside or on the edge of
-        the line, otherwise returns \c false.
-    */
-
-    /*!
         \fn bool ZQLine::contains(int x, int y) const
         \overload
 
-        Returns \c true if the point (\a x, \a y) is inside this line,
+        Returns \c true if the point (\a x, \a y) is on this line,
         otherwise returns \c false.
     */
 
     /*!
-        \fn bool ZQLine::contains(const ZQLine &line, bool proper) const
+        \fn bool ZQLineF::contains(const ZQLine &line) const
         \overload
 
-        Returns \c true if the given \a line is inside this line.
-        otherwise returns \c false. If \a proper is true, this function only
-        returns \c true if the \a line is entirely inside this
-        line (not on the edge).
+        Returns \c true if the given \a line is on this line.
+        otherwise returns \c false.
     */
 
-    bool ZQLineF::contains(const ZQLineF &r, bool proper=false) const noexcept
+    bool ZQLineF::contains(const ZQLineF &r) const noexcept
     {
         if (isNull() || r.isNull())
             return false;
@@ -1136,9 +1298,6 @@ namespace z_qtshapes {
         const QPainterPath path1 = toPath();
         const QPainterPath path2 = r.toPath();
 
-        if (proper && path1 == path2) {
-            return false;
-        }
         return path1.contains(path2);
    
     }
@@ -1152,12 +1311,12 @@ namespace z_qtshapes {
         \sa united()
     */
 
-    ZQLine ZQLine::operator|(const ZQLine &r) const noexcept
+    QPainterPath ZQLineF::operator|(const ZQLineF &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const QPainterPath path1 = toPath();
         const QPainterPath path2 = r.toPath();
@@ -1193,9 +1352,9 @@ namespace z_qtshapes {
     QPainterPath ZQLineF::operator&(const ZQLineF &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const QPainterPath path1 = toPath();
         const QPainterPath path2 = r.toPath();
@@ -1293,7 +1452,7 @@ namespace z_qtshapes {
     {
         QDebugStateSaver saver(dbg);
         dbg.nospace();
-        dbg << toString();
+        dbg << p.toString();
         return dbg;
     }
     #endif
@@ -1308,7 +1467,7 @@ namespace z_qtshapes {
 
     QDataStream &operator<<(QDataStream &stream, const ZQLineF &line)
     {
-        stream << line.p1() << line.p2();
+        stream << line.p1() << line.p2() << line.angle();
         return stream;
     }
 
@@ -1322,9 +1481,11 @@ namespace z_qtshapes {
     QDataStream &operator>>(QDataStream &stream, ZQLineF &line)
     {
         QPointF start, end;
+        qreal a;
         stream >> start;
         stream >> end;
-        line = ZQLineF(start, end);
+        stream >> a;
+        line = ZQLineF(start, end, a);
 
         return stream;
     }

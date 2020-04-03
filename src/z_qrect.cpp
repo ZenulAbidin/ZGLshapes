@@ -41,10 +41,7 @@
 #include "z_qrect.h"
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/geometries/register/segment.hpp>
 BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(QPointF, qreal, boost::geometry::cs::cartesian, x, y, setX, setY);
-BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(QPoint, int, boost::geometry::cs::cartesian, x, y, setX, setY);
-BOOST_GEOMETRY_REGISTER_SEGMENT(QLineF, QPointF, p1, p2);
 
 
 namespace z_qtshapes {
@@ -328,15 +325,18 @@ namespace z_qtshapes {
         \sa isValid(), isEmpty()
     */
 
-    void ZQRect::normalize() const noexcept
+    void ZQRect::normalize() noexcept
     {
-        if (w < 0) {
-            xp += w;
-            w = -w;
+        int temp;
+        if (x2 < x1) {
+            temp = x2;
+            x2 = x1;
+            x1 = temp;
         }
-        if (h < 0) {
-            yp += h;
-            h = -h;
+        if (y2 < y1) {
+            temp = y2;
+            y2 = y1;
+            y1 = temp;
         }
     }
 
@@ -1070,17 +1070,15 @@ namespace z_qtshapes {
         \sa intersects()
     */
 
-    bool ZQRect::contains(const QPoint &p, bool proper=false) const noexcept
+    bool ZQRect::contains(const QPoint &p) const noexcept
     {
-        if (isNull() || r.isNull())
+        if (isNull() || p.isNull())
             return false;
 
         const ZQRect first = normalized();
 
         const QPainterPath path1 = first.toPath();
 
-        // FIXME proper=false is not honored because there isn't a way
-        // to test if a point is on the edge.
         return path1.contains(p);
 
     }
@@ -1114,7 +1112,7 @@ namespace z_qtshapes {
         rectangle (not on the edge).
     */
 
-    bool ZQRect::contains(const ZQRect &r, bool proper=false) const noexcept
+    bool ZQRect::contains(const ZQRect &r, bool proper) const noexcept
     {
         if (isNull() || r.isNull())
             return false;
@@ -1142,12 +1140,12 @@ namespace z_qtshapes {
         \sa united()
     */
 
-    ZQRect ZQRect::operator|(const ZQRect &r) const noexcept
+    QPainterPath ZQRect::operator|(const ZQRect &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const ZQRect first = normalized();
         const ZQRect second = r.normalized();
@@ -1183,12 +1181,12 @@ namespace z_qtshapes {
         \sa intersected()
     */
 
-    QPainterPath ZQRectF::operator&(const ZQRectF &r) const noexcept
+    QPainterPath ZQRect::operator&(const ZQRect &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const ZQRect first = normalized();
         const ZQRect second = r.normalized();
@@ -1342,7 +1340,13 @@ namespace z_qtshapes {
         Returns a printable string of the rectangle.
     */
 
-    constexpr QPainterPath ZQRect::toPath() const noexcept
+    QString ZQRect::toString() const noexcept
+    {
+        return QString("ZQRect(%1,%2 size %3x%4 %5 degrees)").arg(QString::number(x1), QString::number(y1),
+                QString::number(width()), QString::number(height()), QString::number(a));
+    }
+
+    QPainterPath ZQRect::toPath() const noexcept
     {
         QPainterPath path;
         QPointF c1 = QPointF(topRight());
@@ -1371,7 +1375,7 @@ namespace z_qtshapes {
         return path;
     }
 
-    constexpr QPainterPath ZQRect::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
+    QPainterPath ZQRect::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
     {
         QPainterPath path;
         QPointF c1 = QPointF(topRight());
@@ -1450,7 +1454,7 @@ namespace z_qtshapes {
     {
         if (s.version() == 1) {
             qint16 x1, y1, x2, y2, a;
-            s >> x1; s >> y1; s >> x2; s >> y2; s >> a
+            s >> x1; s >> y1; s >> x2; s >> y2; s >> a;
             r.setCoords(x1, y1, x2, y2);
             r.setAngle(a);
         }
@@ -1471,7 +1475,7 @@ namespace z_qtshapes {
     {
         QDebugStateSaver saver(dbg);
         dbg.nospace();
-        dbg << toString();
+        dbg << r.toString();
         return dbg;
     }
     #endif
@@ -1739,7 +1743,7 @@ namespace z_qtshapes {
         \sa isValid(), isEmpty()
     */
 
-    void ZQRectF::normalize() const noexcept
+    void ZQRectF::normalize() noexcept
     {
         if (w < 0) {
             xp += w;
@@ -2313,16 +2317,14 @@ namespace z_qtshapes {
         \sa intersects()
     */
 
-    bool ZQRectF::contains(const QPointF &p, bool proper=false) const noexcept
+    bool ZQRectF::contains(const QPointF &p) const noexcept
     {
-        if (isNull() || r.isNull())
+        if (isNull() || p.isNull())
             return false;
 
         const ZQRectF first = normalized();
         const QPainterPath path1 = first.toPath();
 
-        // FIXME proper=false is not honored because there isn't a way
-        // to test if a point is on the edge.
         return path1.contains(p);
     }
 
@@ -2343,7 +2345,7 @@ namespace z_qtshapes {
         otherwise returns \c false.
     */
 
-    bool ZQRectF::contains(const ZQRectF &r, bool proper=false) const noexcept
+    bool ZQRectF::contains(const ZQRectF &r, bool proper) const noexcept
     {
         const ZQRectF first = normalized();
         const ZQRectF second = r.normalized();
@@ -2436,9 +2438,9 @@ namespace z_qtshapes {
     QPainterPath ZQRectF::operator|(const ZQRectF &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const ZQRectF first = normalized();
         const ZQRectF second = r.normalized();
@@ -2475,6 +2477,11 @@ namespace z_qtshapes {
 
     QPainterPath ZQRectF::operator&(const ZQRectF &r) const noexcept
     {
+        if (isNull())
+            return r.toPath();
+        if (r.isNull())
+            return toPath();
+
         const ZQRectF first = normalized();
         const ZQRectF second = r.normalized();
 
@@ -2529,11 +2536,11 @@ namespace z_qtshapes {
         Returns a ZQRect based on the values of this rectangle.  Note that the
         coordinates in the returned rectangle are rounded to the nearest integer.
 
-        \sa ZQRectF(), toAlignedEllipse()
+        \sa ZQRectF(), toAlignedRect()
     */
 
     /*!
-        \fn ZQRect ZQRectF::toAlignedEllipse() const
+        \fn ZQRect ZQRectF::toAlignedRect() const
         \since 4.3
 
         Returns a ZQRect based on the values of this rectangle that is the
@@ -2543,13 +2550,13 @@ namespace z_qtshapes {
         \sa toEllipse()
     */
 
-    ZQRect ZQRectF::toAlignedEllipse() const noexcept
+    ZQRect ZQRectF::toAlignedRect() const noexcept
     {
         int xmin = int(qFloor(xp));
         int xmax = int(qCeil(xp + w));
         int ymin = int(qFloor(yp));
         int ymax = int(qCeil(yp + h));
-        return ZQRect(xmin, ymin, xmax - xmin, ymax - ymin);
+        return ZQRect(xmin, ymin, xmax - xmin, ymax - ymin, a);
     }
 
     /*!
@@ -2660,7 +2667,14 @@ namespace z_qtshapes {
         Returns a printable string of the rectangle.
     */
 
-    constexpr QPainterPath ZQRectF::toPath() const noexcept
+
+    QString ZQRectF::toString() const noexcept
+    {
+        return QString("ZQRectF(%1,%2 size %3x%4 %5 degrees)").arg(QString::number(xp), QString::number(yp),
+                QString::number(w), QString::number(h), QString::number(a));
+    }
+
+    QPainterPath ZQRectF::toPath() const noexcept
     {
         QPainterPath path;
         QPointF c1 = topRight();
@@ -2670,7 +2684,7 @@ namespace z_qtshapes {
         QPointF cn = center();
 
         QPointF c1a, c2a, c3a, c4a;
-        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(first.angle());
+        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(angle());
         boost::geometry::transform(c1 - cn, c1a, rotate);
         boost::geometry::transform(c2 - cn, c2a, rotate);
         boost::geometry::transform(c3 - cn, c3a, rotate);
@@ -2689,7 +2703,7 @@ namespace z_qtshapes {
         return path;
     }
 
-    constexpr QPainterPath ZQRectF::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
+    QPainterPath ZQRectF::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
     {
         QPainterPath path;
         QPointF c1 = topRight();
@@ -2699,7 +2713,7 @@ namespace z_qtshapes {
         QPointF cn = center();
 
         QPointF c1a, c2a, c3a, c4a;
-        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(first.angle());
+        boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(angle());
         boost::geometry::transform(c1 - cn, c1a, rotate);
         boost::geometry::transform(c2 - cn, c2a, rotate);
         boost::geometry::transform(c3 - cn, c3a, rotate);
@@ -2769,7 +2783,7 @@ namespace z_qtshapes {
         s >> w;
         s >> h;
         s >> a;
-        r.setRect(qreal(x), qreal(y), qreal(w), qreal(h));
+        r.setRect(qreal(x), qreal(y), qreal(w), qreal(h), qreal(a));
         return s;
     }
 
@@ -2781,7 +2795,7 @@ namespace z_qtshapes {
     {
         QDebugStateSaver saver(dbg);
         dbg.nospace();
-        dbg << toString();
+        dbg << r.toString();
         return dbg;
     }
     #endif

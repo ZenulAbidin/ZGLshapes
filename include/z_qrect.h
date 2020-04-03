@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2020 Ali Sherief
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
@@ -40,8 +41,6 @@
 #ifndef Z_QRECT_H
 #define Z_QRECT_H
 
-#define _USE_MATH_DEFINES
-#include <tgmath.h>
 
 #include <QtWidgets>
 #include <QDataStream>
@@ -53,13 +52,11 @@ namespace z_qtshapes {
 
     class ZQRect {
     public:
-        constexpr ZQRect() noexcept : x1(0), y1(0), x2(-1), y2(-1), a(0) {}
-        constexpr ZQRect(const QPoint &topleft, const QPoint &bottomright) noexcept;
-        constexpr ZQRect(const QPoint &topleft, const QPoint &bottomright, int angle) noexcept;
-        constexpr ZQRect(const QPoint &topleft, const QPoint &size) noexcept;
-        constexpr ZQRect(const QPoint &topleft, const QPoint &size, int angle) noexcept;
-        constexpr ZQRect(int left, int top, int width, int height) noexcept;
-        constexpr ZQRect(int left, int top, int width, int height, int angle) noexcept;
+        constexpr inline ZQRect() noexcept : x1(0), y1(0), x2(-1), y2(-1), a(0) {};
+        constexpr inline ZQRect(const QPoint &topleft, const QPoint &size) noexcept;
+        inline ZQRect(const QPoint &topleft, const QPoint &size, int angle) noexcept;
+        constexpr inline ZQRect(int left, int top, int width, int height) noexcept;
+        inline ZQRect(int left, int top, int width, int height, int angle) noexcept;
 
         constexpr inline bool isNull() const noexcept;
         constexpr inline bool isEmpty() const noexcept;
@@ -69,7 +66,7 @@ namespace z_qtshapes {
         constexpr inline int top() const noexcept;
         constexpr inline int right() const noexcept;
         constexpr inline int bottom() const noexcept;
-        void normalize() const noexcept;
+        void normalize() noexcept;
         ZQRect normalized() const noexcept;
 
         constexpr inline int x() const noexcept;
@@ -85,10 +82,10 @@ namespace z_qtshapes {
         inline void setAngle(int a) noexcept;
         inline void setAngleRadians(qreal a) noexcept;
 
-        inline void setTopLeft(const QPointF &p) noexcept;
-        inline void setBottomRight(const QPointF &p) noexcept;
-        inline void setTopRight(const QPointF &p) noexcept;
-        inline void setBottomLeft(const QPointF &p) noexcept;
+        inline void setTopLeft(const QPoint &p) noexcept;
+        inline void setBottomRight(const QPoint &p) noexcept;
+        inline void setTopRight(const QPoint &p) noexcept;
+        inline void setBottomLeft(const QPoint &p) noexcept;
 
         constexpr inline QPoint topLeft() const noexcept;
         constexpr inline QPoint bottomRight() const noexcept;
@@ -96,10 +93,10 @@ namespace z_qtshapes {
         constexpr inline QPoint bottomLeft() const noexcept;
         constexpr inline QPoint center() const noexcept;
 
-        inline void moveLeft(qreal pos) noexcept;
-        inline void moveTop(qreal pos) noexcept;
-        inline void moveRight(qreal pos) noexcept;
-        inline void moveBottom(qreal pos) noexcept;
+        inline void moveLeft(int pos) noexcept;
+        inline void moveTop(int pos) noexcept;
+        inline void moveRight(int pos) noexcept;
+        inline void moveBottom(int pos) noexcept;
         inline void moveTopLeft(const QPoint &p) noexcept;
         inline void moveBottomRight(const QPoint &p) noexcept;
         inline void moveTopRight(const QPoint &p) noexcept;
@@ -107,41 +104,68 @@ namespace z_qtshapes {
         inline void moveCenter(const QPoint &p) noexcept;
 
         inline void translate(int dx, int dy) noexcept;
+        inline void translate(int dx, int dy, int a_) noexcept;
+        inline void translateRadians(int dx, int dy, qreal a_) noexcept;
         inline void translate(const QPoint &p) noexcept;
-        constexpr inline ZQRect translated(int dx, int dy) const noexcept;
-        constexpr inline ZQRect translated(const QPoint &p) const noexcept;
+        inline void translate(const QPoint &p, int a_) noexcept;
+        inline void translateRadians(const QPoint &p, qreal a_) noexcept;
+
+        inline ZQRect translated(int dx, int dy) const noexcept;
+        inline ZQRect translated(int dx, int dy, int a_) const noexcept;
+        inline ZQRect translatedRadians(int dx, int dy, qreal a_) const noexcept;
+        inline ZQRect translated(const QPoint &p) const noexcept;
+        inline ZQRect translated(const QPoint &p, int a_) const noexcept;
+        inline ZQRect translatedRadians(const QPoint &p, qreal a_) const noexcept;
+
         constexpr inline ZQRect transposed() const noexcept;
 
         inline void rotate(int da) noexcept;
         inline void rotateRadians(qreal da) noexcept;
-        constexpr inline ZQRect rotated(int da) noexcept;
-        constexpr inline ZQRect rotatedRadians(qreal da) noexcept;
-
-        inline int normalizedAngle(int a) noexcept;
+        inline ZQRect rotated(int da) const noexcept;
+        inline ZQRect rotatedRadians(qreal da) const noexcept;
 
         inline void moveTo(int x, int t) noexcept;
         inline void moveTo(const QPoint &p) noexcept;
 
-        inline void getRect(int x, int y, int w, int h) noexcept;
+        inline void setRect(int x, int y, int w, int h) noexcept;
+        inline void setRect(int x, int y, int w, int h, int aa) noexcept;
+        inline void setRectRadians(int x, int y, int w, int h, qreal aa) noexcept;
         inline void getRect(int *x, int *y, int *w, int *h) const;
+        inline void getRect(int *x, int *y, int *w, int *h, int *aa) const;
+        inline void getRectRadians(int *x, int *y, int *w, int *h, qreal *aa) const;
 
         inline void setCoords(int x1, int y1, int x2, int y2) noexcept;
         inline void setCoords(int xp1, int yp1, int xp2, int yp2, int angle) noexcept;
-        inline void setCoordsRadians(int xp1, int yp1, int xp2, int yp2, qreal *angle) const;
-        inline void getCoords(int *x1, int *y1, int *x2, qreal *y2) const;
+        inline void setCoordsRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) noexcept;
+        inline void setCoords(const QPoint &p1, const QPoint &p2) noexcept {return setCoords(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline void setCoords(const QPoint &p1, const QPoint &p2, int a_) noexcept {return setCoords(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline void setCoordsRadians(const QPoint &p1, const QPoint &p2, qreal a_) noexcept {return setCoordsRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+
+        inline void getCoords(int *x1, int *y1, int *x2, int *y2) const;
         inline void getCoords(int *xp1, int *yp1, int *xp2, int *yp2, int *angle) const;
         inline void getCoordsRadians(int *xp1, int *yp1, int *xp2, int *yp2, qreal *angle) const;
 
         inline void adjust(int x1, int y1, int x2, int y2) noexcept;
         inline void adjust(int dx1, int dy1, int dx2, int dy2, int angle) noexcept;
         inline void adjustRadians(int dx1, int dy1, int dx2, int dy2, qreal angle) noexcept;
-        constexpr inline ZQRect adjusted(int x1, int y1, int x2, int y2) const noexcept;
-        constexpr inline ZQRect adjusted(int xp1, int yp1, int xp2, int yp2, int angle) const noexcept;
-        constexpr inline ZQRect adjustedRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) const noexcept;
+        inline ZQRect adjusted(int x1, int y1, int x2, int y2) const noexcept;
+        inline ZQRect adjusted(int xp1, int yp1, int xp2, int yp2, int angle) const noexcept;
+        inline ZQRect adjustedRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) const noexcept;
+        inline void adjust(const QPoint &p1, const QPoint &p2) noexcept {return adjust(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline void adjust(const QPoint &p1, const QPoint &p2, int a_) noexcept {return adjust(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline void adjustRadians(const QPoint &p1, const QPoint &p2, qreal a_) noexcept {return adjustRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline ZQRect adjusted(const QPoint &p1, const QPoint &p2) noexcept {return adjusted(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline ZQRect adjusted(const QPoint &p1, const QPoint &p2, int a_) noexcept {return adjusted(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline ZQRect adjustedRadians(const QPoint &p1, const QPoint &p2, qreal a_) noexcept {return adjustedRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+
 
         constexpr inline QSize size() const noexcept;
         constexpr inline int width() const noexcept;
         constexpr inline int height() const noexcept;
+        constexpr inline int px1() const noexcept {return x(); };
+        constexpr inline int py1() const noexcept {return y(); };
+        constexpr inline int px2() const noexcept {return x() + width(); };
+        constexpr inline int py2() const noexcept {return y() + height(); };
         inline void setWidth(int w) noexcept;
         inline void setHeight(int h) noexcept;
         inline void setSize(const QSize &s) noexcept;
@@ -150,24 +174,20 @@ namespace z_qtshapes {
         QPainterPath operator&(const ZQRect &r) const noexcept;
 
         bool contains(const ZQRect &r, bool proper=false) const noexcept;
-        bool contains(const QPoint &p, bool proper=false) const noexcept;
+        bool contains(const QPoint &p) const noexcept;
         inline bool contains(int x, int y) const noexcept;
-        inline bool contains(int x, int y, bool proper) const noexcept;
         inline QPainterPath united(const ZQRect &other) const noexcept;
         inline QPainterPath intersected(const ZQRect &other) const noexcept;
         bool intersects(const ZQRect &r) const noexcept;
 
-        constexpr inline ZQRect marginsAdded(const QMargins &margins) const noexcept;
-        constexpr inline ZQRect marginsRemoved(const QMargins &margins) const noexcept;
+        inline ZQRect marginsAdded(const QMargins &margins) const noexcept;
+        inline ZQRect marginsRemoved(const QMargins &margins) const noexcept;
         inline ZQRect &operator+=(const QMargins &margins) noexcept;
         inline ZQRect &operator-=(const QMargins &margins) noexcept;
 
-        constexpr inline ZQRect toRect() const noexcept;
-        ZQRect toAlignedRect() const noexcept;
-
-        constexpr QPainterPath toPath() const noexcept;
-        constexpr QPainterPath toPath(const QMatrix3x3 &mat, const QPoint &ref) const noexcept;
-        constexpr inline QString toString() const noexcept;
+        QPainterPath toPath() const noexcept;
+        QPainterPath toPath(const QMatrix3x3 &mat, const QPointF &ref) const noexcept;
+        QString toString() const noexcept;
 
         friend constexpr inline bool operator==(const ZQRect &, const ZQRect &) noexcept;
         friend constexpr inline bool operator!=(const ZQRect &, const ZQRect &) noexcept;
@@ -200,20 +220,21 @@ namespace z_qtshapes {
     constexpr inline ZQRect::ZQRect(int aleft, int atop, int awidth, int aheight) noexcept
         : x1(aleft), y1(atop), x2(aleft + awidth - 1), y2(atop + aheight - 1), a(0) {}
 
-    constexpr inline ZQRect::ZQRect(int aleft, int atop, int awidth, int aheight, int angle) noexcept
-        : x1(aleft), y1(atop), x2(aleft + awidth - 1), y2(atop + aheight - 1), a(normalizedAngle(angle)) {}
+    inline ZQRect::ZQRect(int aleft, int atop, int awidth, int aheight, int a_) noexcept
+        : x1(aleft), y1(atop), x2(aleft + awidth - 1), y2(atop + aheight - 1)
+    {
+        a = normalizedAngle(a_);
+    }
 
-    constexpr inline ZQRect::ZQRect(const QPoint &atopLeft, const QPoint &abottomRight) noexcept
-        : x1(atopLeft.x()), y1(atopLeft.y()), x2(abottomRight.x()), y2(abottomRight.y()), a(0) {}
+    constexpr inline ZQRect::ZQRect(const QPoint &atopLeft, const QPoint &asize) noexcept
+        : x1(atopLeft.x()), y1(atopLeft.y()), x2(atopLeft.x()+asize.x() - 1), y2(atopLeft.y()+asize.y() - 1), a(0) {}
 
-    constexpr inline ZQRect::ZQRect(const QPoint &atopLeft, const QPoint &abottomRight, int angle) noexcept
-        : x1(atopLeft.x()), y1(atopLeft.y()), x2(abottomRight.x()), y2(abottomRight.y()), a(normalizedAngle(angle)) {}
+    inline ZQRect::ZQRect(const QPoint &atopLeft, const QPoint &asize, int a_) noexcept
+        : x1(atopLeft.x()), y1(atopLeft.y()), x2(atopLeft.x()+asize.x() - 1), y2(atopLeft.y()+asize.y() - 1)
+    {
+        a = normalizedAngle(a_);
+    }
 
-    constexpr inline ZQRect::ZQRect(const QPoint &atopLeft, const QSize &asize) noexcept
-        : x1(atopLeft.x()), y1(atopLeft.y()), x2(atopLeft.x()+asize.width() - 1), y2(atopLeft.y()+asize.height() - 1) {}
-
-    constexpr inline ZQRect::ZQRect(const QPoint &atopLeft, const QSize &asize, int angle) noexcept
-        : x1(atopLeft.x()), y1(atopLeft.y()), x2(atopLeft.x()+asize.width() - 1), y2(atopLeft.y()+asize.height() - 1), a(normalizedAngle(angle)) {}
 
     constexpr inline bool ZQRect::isNull() const noexcept
     { return x2 == x1 - 1 && y2 == y1 - 1 && a == 0; }
@@ -316,6 +337,24 @@ namespace z_qtshapes {
         y2 += dy;
     }
 
+    inline void ZQRect::translate(int dx, int dy, int a_) noexcept
+    {
+        x1 += dx;
+        y1 += dy;
+        x2 += dx;
+        y2 += dy;
+        a = normalizedAngle(a + a_);
+    }
+
+    inline void ZQRect::translateRadians(int dx, int dy, qreal a_) noexcept
+    {
+        x1 += dx;
+        y1 += dy;
+        x2 += dx;
+        y2 += dy;
+        a = normalizedAngle(a + (int) (180/M_PI * a_));
+    }
+
     inline void ZQRect::translate(const QPoint &p) noexcept
     {
         x1 += p.x();
@@ -324,36 +363,56 @@ namespace z_qtshapes {
         y2 += p.y();
     }
 
-    constexpr inline ZQRect ZQRect::translated(int dx, int dy) const noexcept
-    { return ZQRect(QPoint(x1 + dx, y1 + dy), QPoint(x2 + dx, y2 + dy)); }
+    inline void ZQRect::translate(const QPoint &p, int a_) noexcept
+    {
+        x1 += p.x();
+        y1 += p.y();
+        x2 += p.x();
+        y2 += p.y();
+        a = normalizedAngle(a + a_);
+    }
 
-    constexpr inline ZQRect ZQRect::translated(const QPoint &p) const noexcept
-    { return ZQRect(QPoint(x1 + p.x(), y1 + p.y()), QPoint(x2 + p.x(), y2 + p.y())); }
+    inline void ZQRect::translateRadians(const QPoint &p, qreal a_) noexcept
+    {
+        x1 += p.x();
+        y1 += p.y();
+        x2 += p.x();
+        y2 += p.y();
+        a = normalizedAngle(a + (int) (180/M_PI * a_));
+    }
+
+    inline ZQRect ZQRect::translated(int dx, int dy) const noexcept
+    { return ZQRect(QPoint(x1 + dx, y1 + dy), QPoint(x2 + dx, y2 + dy), a); }
+
+    inline ZQRect ZQRect::translated(int dx, int dy, int a_) const noexcept
+    { return ZQRect(QPoint(x1 + dx, y1 + dy), QPoint(x2 + dx, y2 + dy), normalizedAngle(a + a_)); }
+
+    inline ZQRect ZQRect::translatedRadians(int dx, int dy, qreal a_) const noexcept
+    { return ZQRect(QPoint(x1 + dx, y1 + dy), QPoint(x2 + dx, y2 + dy), normalizedAngle(a + (int) (180/M_PI * a_))); }
+
+    inline ZQRect ZQRect::translated(const QPoint &p) const noexcept
+    { return ZQRect(QPoint(x1 + p.x(), y1 + p.y()), QPoint(x2 + p.x(), y2 + p.y()), a); }
+
+    inline ZQRect ZQRect::translated(const QPoint &p, int a_) const noexcept
+    { return ZQRect(QPoint(x1 + p.x(), y1 + p.y()), QPoint(x2 + p.x(), y2 + p.y()), normalizedAngle(a + a_)); }
+
+    inline ZQRect ZQRect::translatedRadians(const QPoint &p, qreal a_) const noexcept
+    { return ZQRect(QPoint(x1 + p.x(), y1 + p.y()), QPoint(x2 + p.x(), y2 + p.y()), normalizedAngle(a + (int) (180/M_PI * a_))); }
 
     constexpr inline ZQRect ZQRect::transposed() const noexcept
-    { return ZQRect(topLeft(), size().transposed()); }
+    { return ZQRect(topLeft(), QPoint(bottomRight().y(), bottomRight().x())); }
 
-    inline void ZQRect::rotate(int angle) const noexcept
-    { a += normalizedAngle(angle); }
+    inline void ZQRect::rotate(int a_) noexcept
+    { a = normalizedAngle(a + a_); }
 
-    inline void ZQRect::rotateRadians(qreal angle) const noexcept
-    { a += normalizedAngle((int) (180/M_PI * angle)); }
+    inline void ZQRect::rotateRadians(qreal a_) noexcept
+    { a = normalizedAngle(a + (int) (180/M_PI * a_)); }
 
-    constexpr inline ZQRect ZQRect::rotate(int angle) const noexcept
-    { return ZQRect(x1, y1, x2, y2, a + normalizedAngle(angle)); }
+    inline ZQRect ZQRect::rotated(int a_) const noexcept
+    { return ZQRect(x1, y1, x2, y2, a + normalizedAngle(a_)); }
 
-    constexpr inline ZQRect ZQRect::rotateRadians(qreal angle) const noexcept
-    { return ZQRect(x1, y1, x2, y2, a + normalizedAngle((int) (180/M_PI * angle))); }
-
-
-    inline int ZQRect::normalizedAngle(int a) noexcept
-    {
-        while (a < 0)
-            a += 360 * MAX_ROTATIONS;
-        while (angle >= 360 * MAX_ROTATIONS)
-            a -= 360 * MAX_ROTATIONS;
-        return a;
-    }
+    inline ZQRect ZQRect::rotatedRadians(qreal a_) const noexcept
+    { return ZQRect(x1, y1, x2, y2, a + normalizedAngle((int) (180/M_PI * a_))); }
 
     inline void ZQRect::moveTo(int ax, int ay) noexcept
     {
@@ -431,12 +490,48 @@ namespace z_qtshapes {
         *ah = y2 - y1 + 1;
     }
 
+    inline void ZQRect::getRect(int *ax, int *ay, int *aw, int *ah, int *aa) const
+    {
+        *ax = x1;
+        *ay = y1;
+        *aw = x2 - x1 + 1;
+        *ah = y2 - y1 + 1;
+        *aa = a;
+    }
+
+    inline void ZQRect::getRectRadians(int *ax, int *ay, int *aw, int *ah, qreal *aa) const
+    {
+        *ax = x1;
+        *ay = y1;
+        *aw = x2 - x1 + 1;
+        *ah = y2 - y1 + 1;
+        *aa = M_PI/180 * a;
+    }
+
     inline void ZQRect::setRect(int ax, int ay, int aw, int ah) noexcept
     {
         x1 = ax;
         y1 = ay;
         x2 = (ax + aw - 1);
         y2 = (ay + ah - 1);
+    }
+
+    inline void ZQRect::setRect(int ax, int ay, int aw, int ah, int aa) noexcept
+    {
+        x1 = ax;
+        y1 = ay;
+        x2 = (ax + aw - 1);
+        y2 = (ay + ah - 1);
+        a = normalizedAngle(aa);
+    }
+
+    inline void ZQRect::setRectRadians(int ax, int ay, int aw, int ah, qreal aa) noexcept
+    {
+        x1 = ax;
+        y1 = ay;
+        x2 = (ax + aw - 1);
+        y2 = (ay + ah - 1);
+        a = normalizedAngle((int) (180/M_PI * aa));
     }
 
     inline void ZQRect::getCoords(int *xp1, int *yp1, int *xp2, int *yp2) const
@@ -447,22 +542,22 @@ namespace z_qtshapes {
         *yp2 = y2;
     }
 
-    inline void ZQRect::getCoords(int *xp1, int *yp1, int *xp2, int *yp2, int *angle) const
+    inline void ZQRect::getCoords(int *xp1, int *yp1, int *xp2, int *yp2, int *a_) const
     {
         *xp1 = x1;
         *yp1 = y1;
         *xp2 = x2;
         *yp2 = y2;
-        *angle = a;
+        *a_ = a;
     }
 
-    inline void ZQRect::getCoordsRadians(int *xp1, int *yp1, int *xp2, int *yp2, qreal *angle) const
+    inline void ZQRect::getCoordsRadians(int *xp1, int *yp1, int *xp2, int *yp2, qreal *a_) const
     {
         *xp1 = x1;
         *yp1 = y1;
         *xp2 = x2;
         *yp2 = y2;
-        *angle = M_PI/180 * a;
+        *a_ = M_PI/180 * a;
     }
 
     inline void ZQRect::setCoords(int xp1, int yp1, int xp2, int yp2) noexcept
@@ -473,32 +568,32 @@ namespace z_qtshapes {
         y2 = yp2;
     }
 
-    inline void ZQRect::setCoords(int xp1, int yp1, int xp2, int yp2, int angle) noexcept
+    inline void ZQRect::setCoords(int xp1, int yp1, int xp2, int yp2, int a_) noexcept
     {
         x1 = xp1;
         y1 = yp1;
         x2 = xp2;
         y2 = yp2;
-        a = normalizedAngle(angle);
+        a = normalizedAngle(a_);
     }
 
-    inline void ZQRect::setCoordsRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) noexcept
+    inline void ZQRect::setCoordsRadians(int xp1, int yp1, int xp2, int yp2, qreal a_) noexcept
     {
         x1 = xp1;
         y1 = yp1;
         x2 = xp2;
         y2 = yp2;
-        a = normalizedAngle((int) (180/M_PI * angle));
+        a = normalizedAngle((int) (180/M_PI * a_));
     }
 
 
-    constexpr inline ZQRect ZQRect::adjusted(int xp1, int yp1, int xp2, int yp2) const noexcept
+    inline ZQRect ZQRect::adjusted(int xp1, int yp1, int xp2, int yp2) const noexcept
     { return ZQRect(QPoint(x1 + xp1, y1 + yp1), QPoint(x2 + xp2, y2 + yp2)); }
 
-    constexpr inline ZQRect ZQRect::adjusted(int xp1, int yp1, int xp2, int yp2, int angle) const noexcept
+    inline ZQRect ZQRect::adjusted(int xp1, int yp1, int xp2, int yp2, int angle) const noexcept
     { return ZQRect(QPoint(x1 + xp1, y1 + yp1), QPoint(x2 + xp2, y2 + yp2), angle); }
 
-    constexpr inline ZQRect ZQRect::adjustedRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) const noexcept
+    inline ZQRect ZQRect::adjustedRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) const noexcept
     { return ZQRect(QPoint(x1 + xp1, y1 + yp1), QPoint(x2 + xp2, y2 + yp2), normalizedAngle((int) (180/M_PI * angle))); }
 
 
@@ -540,19 +635,9 @@ namespace z_qtshapes {
         y2 = (s.height() + y1 - 1);
     }
 
-    inline bool ZQRect::contains(int ax, int ay, bool aproper) const noexcept
-    {
-        return contains(QPoint(ax, ay), aproper);
-    }
-
     inline bool ZQRect::contains(int ax, int ay) const noexcept
     {
-        return contains(QPoint(ax, ay), false);
-    }
-
-    constexpr inline QString toString() const noexcept
-    {
-        return QString("ZQRect(%1,%2 size %3x%4 %5 degrees)").arg(x1, y1, width(), height(), a));
+        return contains(QPoint(ax, ay));
     }
 
     inline QPainterPath ZQRect::intersected(const ZQRect &other) const noexcept
@@ -573,37 +658,37 @@ namespace z_qtshapes {
 
     constexpr inline bool operator!=(const ZQRect &r1, const ZQRect &r2) noexcept
     {
-        return r1.x1!=r2.x1 || r1.x2!=r2.x2 || r1.y1!=r2.y1 || r1.y2!=r2.y2;
+        return r1.x1!=r2.x1 || r1.x2!=r2.x2 || r1.y1!=r2.y1 || r1.y2!=r2.y2 || r1.a!=r2.a;
     }
 
-    constexpr inline ZQRect operator+(const ZQRect &rectangle, const QMargins &margins) noexcept
+    inline ZQRect operator+(const ZQRect &rectangle, const QMargins &margins) noexcept
     {
         return ZQRect(QPoint(rectangle.left() - margins.left(), rectangle.top() - margins.top()),
-                     QPoint(rectangle.right() + margins.right(), rectangle.bottom() + margins.bottom()));
+                     QPoint(rectangle.right() + margins.right(), rectangle.bottom() + margins.bottom()), rectangle.angle());
     }
 
-    constexpr inline ZQRect operator+(const QMargins &margins, const ZQRect &rectangle) noexcept
+    inline ZQRect operator+(const QMargins &margins, const ZQRect &rectangle) noexcept
     {
         return ZQRect(QPoint(rectangle.left() - margins.left(), rectangle.top() - margins.top()),
-                     QPoint(rectangle.right() + margins.right(), rectangle.bottom() + margins.bottom()));
+                     QPoint(rectangle.right() + margins.right(), rectangle.bottom() + margins.bottom()), rectangle.angle());
     }
 
-    constexpr inline ZQRect operator-(const ZQRect &lhs, const QMargins &rhs) noexcept
+    inline ZQRect operator-(const ZQRect &lhs, const QMargins &rhs) noexcept
     {
         return ZQRect(QPoint(lhs.left() + rhs.left(), lhs.top() + rhs.top()),
-                     QPoint(lhs.right() - rhs.right(), lhs.bottom() - rhs.bottom()));
+                     QPoint(lhs.right() - rhs.right(), lhs.bottom() - rhs.bottom()), lhs.angle());
     }
 
-    constexpr inline ZQRect ZQRect::marginsAdded(const QMargins &margins) const noexcept
+    inline ZQRect ZQRect::marginsAdded(const QMargins &margins) const noexcept
     {
         return ZQRect(QPoint(x1 - margins.left(), y1 - margins.top()),
-                     QPoint(x2 + margins.right(), y2 + margins.bottom()));
+                     QPoint(x2 + margins.right(), y2 + margins.bottom()), a);
     }
 
-    constexpr inline ZQRect ZQRect::marginsRemoved(const QMargins &margins) const noexcept
+    inline ZQRect ZQRect::marginsRemoved(const QMargins &margins) const noexcept
     {
         return ZQRect(QPoint(x1 + margins.left(), y1 + margins.top()),
-                     QPoint(x2 - margins.right(), y2 - margins.bottom()));
+                     QPoint(x2 - margins.right(), y2 - margins.bottom()), a);
     }
 
     inline ZQRect &ZQRect::operator+=(const QMargins &margins) noexcept
@@ -627,19 +712,17 @@ namespace z_qtshapes {
 
     class ZQRectF {
     public:
-        constexpr ZQRectF() noexcept : xp(0.), yp(0.), w(0.), h(0.) a(0.) {}
-        constexpr ZQRectF(const QPointF &topleft, const QSizeF &size) noexcept;
-        constexpr ZQRectF(const QPointF &topleft, const QSizeF &size, qreal angle) noexcept;
-        constexpr ZQRectF(const QPointF &topleft, const QPointF &bottomRight) noexcept;
-        constexpr ZQRectF(const QPointF &topleft, const QPointF &bottomRight, qreal angle) noexcept;
+        constexpr ZQRectF() noexcept : xp(0.), yp(0.), w(0.), h(0.), a(0.) {}
+        constexpr ZQRectF(const QPointF &topleft, const QPointF &size) noexcept;
+        ZQRectF(const QPointF &topleft, const QPointF &size, qreal angle) noexcept;
         constexpr ZQRectF(qreal left, qreal top, qreal width, qreal height) noexcept;
-        constexpr ZQRectF(qreal left, qreal top, qreal width, qreal height, qreal angle) noexcept;
+        ZQRectF(qreal left, qreal top, qreal width, qreal height, qreal angle) noexcept;
         constexpr ZQRectF(const ZQRect &rect) noexcept;
 
         constexpr inline bool isNull() const noexcept;
         constexpr inline bool isEmpty() const noexcept;
         constexpr inline bool isValid() const noexcept;
-        void normalize() const noexcept;
+        void normalize() noexcept;
         ZQRectF normalized() const noexcept;
 
         constexpr inline qreal left() const noexcept { return xp; }
@@ -682,30 +765,43 @@ namespace z_qtshapes {
         inline void moveCenter(const QPointF &p) noexcept;
 
         inline void translate(qreal dx, qreal dy) noexcept;
+        inline void translate(qreal dx, qreal dy, qreal a_) noexcept;
+        inline void translateRadians(qreal dx, qreal dy, qreal a_) noexcept;
         inline void translate(const QPointF &p) noexcept;
+        inline void translate(const QPointF &p, qreal a_) noexcept;
+        inline void translateRadians(const QPointF &p, qreal a_) noexcept;
 
-        constexpr inline ZQRectF translated(qreal dx, qreal dy) const noexcept;
-        constexpr inline ZQRectF translated(const QPointF &p) const noexcept;
+        inline ZQRectF translated(qreal dx, qreal dy) const noexcept;
+        inline ZQRectF translated(qreal dx, qreal dy, qreal a_) const noexcept;
+        inline ZQRectF translatedRadians(qreal dx, qreal dy, qreal a_) const noexcept;
+        inline ZQRectF translated(const QPointF &p) const noexcept;
+        inline ZQRectF translated(const QPointF &p, qreal a_) const noexcept;
+        inline ZQRectF translatedRadians(const QPointF &p, qreal a_) const noexcept;
 
         constexpr inline ZQRectF transposed() const noexcept;
 
 
         inline void rotate(qreal da) noexcept;
         inline void rotateRadians(qreal da) noexcept;
-        constexpr inline ZQRectF rotated(qreal da) noexcept;
-        constexpr inline ZQRectF rotatedRadians(qreal da) noexcept;
-
-        inline qreal normalizedAngle(qreal a) noexcept;
+        inline ZQRectF rotated(qreal da) const noexcept;
+        inline ZQRectF rotatedRadians(qreal da) const noexcept;
 
         inline void moveTo(qreal x, qreal y) noexcept;
         inline void moveTo(const QPointF &p) noexcept;
 
         inline void setRect(qreal x, qreal y, qreal w, qreal h) noexcept;
+        inline void setRect(qreal x, qreal y, qreal w, qreal h, qreal a) noexcept;
+        inline void setRectRadians(qreal x, qreal y, qreal w, qreal h, qreal a) noexcept;
         inline void getRect(qreal *x, qreal *y, qreal *w, qreal *h) const;
+        inline void getRect(qreal *x, qreal *y, qreal *w, qreal *h, qreal *a) const;
+        inline void getRectRadians(qreal *x, qreal *y, qreal *w, qreal *h, qreal *a) const;
 
         inline void setCoords(qreal x1, qreal y1, qreal x2, qreal y2) noexcept;
         inline void setCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept;
         inline void setCoordsRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept;
+        inline void setCoords(const QPointF &p1, const QPointF &p2) noexcept {return setCoords(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline void setCoords(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return setCoords(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline void setCoordsRadians(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return setCoordsRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
         inline void getCoords(qreal *x1, qreal *y1, qreal *x2, qreal *y2) const;
         inline void getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *angle) const;
         inline void getCoordsRadians(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *angle) const;
@@ -713,13 +809,24 @@ namespace z_qtshapes {
         inline void adjust(qreal x1, qreal y1, qreal x2, qreal y2) noexcept;
         inline void adjust(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept;
         inline void adjustRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept;
-        constexpr inline ZQRectF adjusted(qreal x1, qreal y1, qreal x2, qreal y2) const noexcept;
-        constexpr inline ZQRectF adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept;
-        constexpr inline ZQRectF adjustedRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept;
+        inline ZQRectF adjusted(qreal x1, qreal y1, qreal x2, qreal y2) const noexcept;
+        inline ZQRectF adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept;
+        inline ZQRectF adjustedRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept;
+        inline void adjust(const QPointF &p1, const QPointF &p2) noexcept {return adjust(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline void adjust(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return adjust(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline void adjustRadians(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return adjustRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline ZQRectF adjusted(const QPointF &p1, const QPointF &p2) noexcept {return adjusted(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline ZQRectF adjusted(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return adjusted(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline ZQRectF adjustedRadians(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return adjustedRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+
 
         constexpr inline QSizeF size() const noexcept;
         constexpr inline qreal width() const noexcept;
         constexpr inline qreal height() const noexcept;
+        constexpr inline qreal px1() const noexcept {return x(); };
+        constexpr inline qreal py1() const noexcept {return y(); };
+        constexpr inline qreal px2() const noexcept {return x() + width(); };
+        constexpr inline qreal py2() const noexcept {return y() + height(); };
         inline void setWidth(qreal w) noexcept;
         inline void setHeight(qreal h) noexcept;
         inline void setSize(const QSizeF &s) noexcept;
@@ -728,21 +835,23 @@ namespace z_qtshapes {
         QPainterPath operator&(const ZQRectF &r) const noexcept;
 
         bool contains(const ZQRectF &r, bool proper=false) const noexcept;
-        bool contains(const QPointF &p, bool proper=false) const noexcept;
+        bool contains(const QPointF &p) const noexcept;
         inline bool contains(qreal x, qreal y) const noexcept;
         inline QPainterPath united(const ZQRectF &other) const noexcept;
         inline QPainterPath intersected(const ZQRectF &other) const noexcept;
         bool intersects(const ZQRectF &r) const noexcept;
 
-        constexpr inline ZQRectF marginsAdded(const QMarginsF &margins) const noexcept;
-        constexpr inline ZQRectF marginsRemoved(const QMarginsF &margins) const noexcept;
+        inline ZQRectF marginsAdded(const QMarginsF &margins) const noexcept;
+        inline ZQRectF marginsRemoved(const QMarginsF &margins) const noexcept;
         inline ZQRectF &operator+=(const QMarginsF &margins) noexcept;
         inline ZQRectF &operator-=(const QMarginsF &margins) noexcept;
 
+        inline ZQRect toRect() const noexcept;
+        ZQRect toAlignedRect() const noexcept;
 
-        constexpr QPainterPath toPath() const noexcept;
-        constexpr QPainterPath toPath(const QMatrix3x3 &mat, const QPointF &ref) const noexcept;
-        constexpr inline QString toString() const noexcept;
+        QPainterPath toPath() const noexcept;
+        QPainterPath toPath(const QMatrix3x3 &mat, const QPointF &ref) const noexcept;
+        QString toString() const noexcept;
 
         friend constexpr inline bool operator==(const ZQRectF &, const ZQRectF &) noexcept;
         friend constexpr inline bool operator!=(const ZQRectF &, const ZQRectF &) noexcept;
@@ -774,37 +883,25 @@ namespace z_qtshapes {
      *****************************************************************************/
 
     constexpr inline ZQRectF::ZQRectF(qreal aleft, qreal atop, qreal awidth, qreal aheight) noexcept
+        : xp(aleft), yp(atop), w(awidth), h(aheight), a(0)
+    {
+    }
+
+    inline ZQRectF::ZQRectF(qreal aleft, qreal atop, qreal awidth, qreal aheight, qreal angle) noexcept
         : xp(aleft), yp(atop), w(awidth), h(aheight)
     {
+        a = normalizedAngle(angle);
     }
 
-    constexpr inline ZQRectF::ZQRectF(qreal aleft, qreal atop, qreal awidth, qreal aheight, qreal angle) noexcept
-        : xp(aleft), yp(atop), w(awidth), h(aheight), a(normalizedAngle(angle))
+    constexpr inline ZQRectF::ZQRectF(const QPointF &atopLeft, const QPointF &asize) noexcept
+        : xp(atopLeft.x()), yp(atopLeft.y()), w(asize.x()), h(asize.y()), a(0)
     {
     }
 
-    constexpr inline ZQRectF::ZQRectF(const QPointF &atopLeft, const QSizeF &asize) noexcept
-        : xp(atopLeft.x()), yp(atopLeft.y()), w(asize.width()), h(asize.height())
+    inline ZQRectF::ZQRectF(const QPointF &atopLeft, const QPointF &asize, qreal angle) noexcept
+        : xp(atopLeft.x()), yp(atopLeft.y()), w(asize.x()), h(asize.y())
     {
-    }
-
-    constexpr inline ZQRectF::ZQRectF(const QPointF &atopLeft, const QSizeF &asize, qreal angle) noexcept
-        : xp(atopLeft.x()), yp(atopLeft.y()), w(asize.width()), h(asize.height(), a(normalizedAngle(angle))
-    {
-    }
-
-
-
-    constexpr inline ZQRectF::ZQRectF(const QPointF &atopLeft, const QPointF &abottomRight) noexcept
-        : xp(atopLeft.x()), yp(atopLeft.y()), w(abottomRight.x() - atopLeft.x()), h(abottomRight.y() - atopLeft.y())
-    {
-    }
-
-
-    constexpr inline ZQRectF::ZQRectF(const QPointF &atopLeft, const QPointF &abottomRight, qreal angle) noexcept
-        : xp(atopLeft.x()), yp(atopLeft.y()), w(abottomRight.x() - atopLeft.x()), h(abottomRight.y() - atopLeft.y()),
-            a(normalizedAngle(angle))
-    {
+        a = normalizedAngle(angle);
     }
 
 
@@ -903,38 +1000,17 @@ namespace z_qtshapes {
     constexpr inline QSizeF ZQRectF::size() const noexcept
     { return QSizeF(w, h); }
 
-    inline void ZQRectF::translate(qreal dx, qreal dy) noexcept
-    {
-        xp += dx;
-        yp += dy;
-    }
+    inline void ZQRectF::rotate(qreal a_) noexcept
+    { a += normalizedAngle(a_); }
 
-    inline void ZQRectF::translate(const QPointF &p) noexcept
-    {
-        xp += p.x();
-        yp += p.y();
-    }
+    inline void ZQRectF::rotateRadians(qreal a_) noexcept
+    { a += normalizedAngle(180/M_PI * (a_)); }
 
-    inline void ZQRectF::rotate(qreal angle) const noexcept
-    { a += normalizedAngle(angle); }
+    inline ZQRectF ZQRectF::rotated(qreal a_) const noexcept
+    { return ZQRect(xp, yp, w, h, a + normalizedAngle(a_)); }
 
-    inline void ZQRectF::rotateRadians(qreal angle) const noexcept
-    { a += normalizedAngle(180/M_PI * (angle)); }
-
-    constexpr inline ZQRectF ZQRectF::rotate(qreal angle) const noexcept
-    { return ZQRect(x1, y1, x2, y2, a + normalizedAngle(angle)); }
-
-    constexpr inline ZQRectF ZQRectF::rotateRadians(qreal angle) const noexcept
-    { return ZQRect(x1, y1, x2, y2, a + normalizedAngle(180/M_PI * angle)); }
-
-    inline qreal ZQRectF::normalizedAngle(qreal a) noexcept
-    {
-        while (a < 0)
-            a += 360 * MAX_ROTATIONS;
-        while (angle >= 360 * MAX_ROTATIONS)
-            a -= 360 * MAX_ROTATIONS;
-        return a;
-    }
+    inline ZQRectF ZQRectF::rotatedRadians(qreal a_) const noexcept
+    { return ZQRect(xp, yp, w, h, a + normalizedAngle(180/M_PI * a_)); }
 
     inline void ZQRectF::moveTo(qreal ax, qreal ay) noexcept
     {
@@ -948,14 +1024,66 @@ namespace z_qtshapes {
         yp = p.y();
     }
 
-    constexpr inline ZQRectF ZQRectF::translated(qreal dx, qreal dy) const noexcept
-    { return ZQRectF(xp + dx, yp + dy, w, h); }
+    inline void ZQRectF::translate(qreal dx, qreal dy) noexcept
+    {
+        xp += dx;
+        yp += dy;
+    }
 
-    constexpr inline ZQRectF ZQRectF::translated(const QPointF &p) const noexcept
-    { return ZQRectF(xp + p.x(), yp + p.y(), w, h); }
+    inline void ZQRectF::translate(qreal dx, qreal dy, qreal a_) noexcept
+    {
+        xp += dx;
+        yp += dy;
+        a = normalizedAngle(a + a_);
+    }
+
+    inline void ZQRectF::translateRadians(qreal dx, qreal dy, qreal a_) noexcept
+    {
+        xp += dx;
+        yp += dy;
+        a = normalizedAngle(a + 180/M_PI * a_);
+    }
+
+    inline void ZQRectF::translate(const QPointF &p) noexcept
+    {
+        xp += p.x();
+        yp += p.y();
+    }
+
+    inline void ZQRectF::translate(const QPointF &p, qreal a_) noexcept
+    {
+        xp += p.x();
+        yp += p.y();
+        a = normalizedAngle(a + a_);
+    }
+
+    inline void ZQRectF::translateRadians(const QPointF &p, qreal a_) noexcept
+    {
+        xp += p.x();
+        yp += p.y();
+        a = normalizedAngle(a + 180/M_PI * a_);
+    }
+
+    inline ZQRectF ZQRectF::translated(qreal dx, qreal dy) const noexcept
+    { return ZQRectF(xp + dx, yp + dy, w, h, a); }
+
+    inline ZQRectF ZQRectF::translated(qreal dx, qreal dy, qreal a_) const noexcept
+    { return ZQRectF(xp + dx, yp + dy, w, h, normalizedAngle(a + a_)); }
+
+    inline ZQRectF ZQRectF::translatedRadians(qreal dx, qreal dy, qreal a_) const noexcept
+    { return ZQRectF(xp + dx, yp + dy, w, h, normalizedAngle(a + 180/M_PI * a_)); }
+
+    inline ZQRectF ZQRectF::translated(const QPointF &p) const noexcept
+    { return ZQRectF(xp + p.x(), yp + p.y(), w, h, a); }
+
+    inline ZQRectF ZQRectF::translated(const QPointF &p, qreal a_) const noexcept
+    { return ZQRectF(xp + p.x(), yp + p.y(), w, h, normalizedAngle(a + a_)); }
+
+    inline ZQRectF ZQRectF::translatedRadians(const QPointF &p, qreal a_) const noexcept
+    { return ZQRectF(xp + p.x(), yp + p.y(), w, h, normalizedAngle(a + 180/M_PI * a_)); }
 
     constexpr inline ZQRectF ZQRectF::transposed() const noexcept
-    { return ZQRectF(topLeft(), size().transposed()); }
+    { return ZQRectF(topLeft(), QPoint(bottomRight().y(), bottomRight().x())); }
 
     inline void ZQRectF::getRect(qreal *ax, qreal *ay, qreal *aaw, qreal *aah) const
     {
@@ -972,6 +1100,15 @@ namespace z_qtshapes {
         *aaw = this->w;
         *aah = this->h;
         *aaa = this->a;
+    }
+
+    inline void ZQRectF::getRectRadians(qreal *ax, qreal *ay, qreal *aaw, qreal *aah, qreal *aaa) const
+    {
+        *ax = this->xp;
+        *ay = this->yp;
+        *aaw = this->w;
+        *aah = this->h;
+        *aaa = M_PI/180 * this->a;
     }
 
     inline void ZQRectF::setRect(qreal ax, qreal ay, qreal aaw, qreal aah) noexcept
@@ -991,6 +1128,14 @@ namespace z_qtshapes {
         this->a = normalizedAngle(aaa);
     }
 
+    inline void ZQRectF::setRectRadians(qreal ax, qreal ay, qreal aaw, qreal aah, qreal aaa) noexcept
+    {
+        this->xp = ax;
+        this->yp = ay;
+        this->w = aaw;
+        this->h = aah;
+        this->a = normalizedAngle(180/M_PI * aaa);
+    }
 
     inline void ZQRectF::getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2) const
     {
@@ -1000,22 +1145,22 @@ namespace z_qtshapes {
         *yp2 = yp + h;
     }
 
-    inline void ZQRectF::getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *angle) const
+    inline void ZQRectF::getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *a_) const
     {
         *xp1 = xp;
         *yp1 = yp;
         *xp2 = xp + w;
         *yp2 = yp + h;
-        *angle = a;
+        *a_ = a;
     }
 
-    inline void ZQRectF::getCoordsRadians(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *angle) const
+    inline void ZQRectF::getCoordsRadians(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *a_) const
     {
         *xp1 = xp;
         *yp1 = yp;
         *xp2 = xp + w;
         *yp2 = yp + h;
-        *angle = M_PI/180 * a;
+        *a_ = M_PI/180 * a;
     }
 
     inline void ZQRectF::setCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2) noexcept
@@ -1026,22 +1171,22 @@ namespace z_qtshapes {
         h = yp2 - yp1;
     }
 
-    inline void ZQRectF::setCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept
+    inline void ZQRectF::setCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal a_) noexcept
     {
         xp = xp1;
         yp = yp1;
         w = xp2 - xp1;
         h = yp2 - yp1;
-        a = normalizedAngle(angle);
+        a = normalizedAngle(a_);
     }
 
-    inline void ZQRectF::setCoordsRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept
+    inline void ZQRectF::setCoordsRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal a_) noexcept
     {
         xp = xp1;
         yp = yp1;
         w = xp2 - xp1;
         h = yp2 - yp1;
-        a = normalizedAngle(180/M_PI * angle);
+        a = normalizedAngle(180/M_PI * a_);
     }
 
     inline void ZQRectF::adjust(qreal xp1, qreal yp1, qreal xp2, qreal yp2) noexcept
@@ -1053,13 +1198,13 @@ namespace z_qtshapes {
     inline void ZQRectF::adjustRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept
     { xp += xp1; yp += yp1; w += xp2 - xp1; h += yp2 - yp1; angle = normalizedAngle(a + 180/M_PI * angle); }
 
-    constexpr inline ZQRectF ZQRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const noexcept
-    { return ZQRectF(xp + xp1, yp + yp1, w + xp2 - xp1, h + yp2 - yp1); }
+    inline ZQRectF ZQRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const noexcept
+    { return ZQRectF(xp + xp1, yp + yp1, w + xp2 - xp1, h + yp2 - yp1, a); }
 
-    constexpr inline ZQRectF ZQRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept
+    inline ZQRectF ZQRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept
     { return ZQRectF(xp + xp1, yp + yp1, w + xp2 - xp1, h + yp2 - yp1, normalizedAngle(a + angle)); }
 
-    constexpr inline ZQRectF ZQRectF::adjustedRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept
+    inline ZQRectF ZQRectF::adjustedRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept
     { return ZQRectF(xp + xp1, yp + yp1, w + xp2 - xp1, h + yp2 - yp1, normalizedAngle(a + 180/M_PI * angle)); }
 
     inline void ZQRectF::setWidth(qreal aw) noexcept
@@ -1077,11 +1222,6 @@ namespace z_qtshapes {
     inline bool ZQRectF::contains(qreal ax, qreal ay) const noexcept
     {
         return contains(QPointF(ax, ay));
-    }
-
-    constexpr inline QString toString() const noexcept
-    {
-        return QString("ZQRectF(%1,%2 size %3x%4 %5 degrees)").arg(xp, yp, w, h, a));
     }
 
     inline QPainterPath ZQRectF::intersected(const ZQRectF &r) const noexcept
@@ -1104,42 +1244,44 @@ namespace z_qtshapes {
     constexpr inline bool operator!=(const ZQRectF &r1, const ZQRectF &r2) noexcept
     {
         return !qFuzzyCompare(r1.xp, r2.xp) || !qFuzzyCompare(r1.yp, r2.yp)
-               || !qFuzzyCompare(r1.w, r2.w) || !qFuzzyCompare(r1.h, r2.h);
+               || !qFuzzyCompare(r1.w, r2.w) || !qFuzzyCompare(r1.h, r2.h)
+               || !qFuzzyCompare(r1.a, r2.a);
     }
 
-    constexpr inline ZQRect ZQRectF::toRect() const noexcept
+    inline ZQRect ZQRectF::toRect() const noexcept
     {
-        return ZQRect(QPoint(qRound(xp), qRound(yp)), QPoint(qRound(xp + w) - 1, qRound(yp + h) - 1));
+        return ZQRect(QPoint(qRound(xp), qRound(yp)), QPoint(qRound(xp + w) - 1, qRound(yp + h) - 1), a);
     }
 
-    constexpr inline ZQRectF operator+(const ZQRectF &lhs, const QMarginsF &rhs) noexcept
+    inline ZQRectF operator+(const ZQRectF &lhs, const QMarginsF &rhs) noexcept
     {
         return ZQRectF(QPointF(lhs.left() - rhs.left(), lhs.top() - rhs.top()),
-                      QSizeF(lhs.width() + rhs.left() + rhs.right(), lhs.height() + rhs.top() + rhs.bottom()));
+                      QPointF(lhs.width() + rhs.left() + rhs.right(), lhs.height() + rhs.bottom() + rhs.bottom()),
+                      lhs.angle());
     }
 
-    constexpr inline ZQRectF operator+(const QMarginsF &lhs, const ZQRectF &rhs) noexcept
+    inline ZQRectF operator+(const QMarginsF &lhs, const ZQRectF &rhs) noexcept
     {
         return ZQRectF(QPointF(rhs.left() - lhs.left(), rhs.top() - lhs.top()),
-                      QSizeF(rhs.width() + lhs.left() + lhs.right(), rhs.height() + lhs.top() + lhs.bottom()));
+                      QPointF(rhs.width() + lhs.left() + lhs.right(), rhs.height() + lhs.bottom() + lhs.bottom()), rhs.angle());
     }
 
-    constexpr inline ZQRectF operator-(const ZQRectF &lhs, const QMarginsF &rhs) noexcept
+    inline ZQRectF operator-(const ZQRectF &lhs, const QMarginsF &rhs) noexcept
     {
         return ZQRectF(QPointF(lhs.left() + rhs.left(), lhs.top() + rhs.top()),
-                      QSizeF(lhs.width() - rhs.left() - rhs.right(), lhs.height() - rhs.top() - rhs.bottom()));
+                      QPointF(lhs.width() - rhs.left() - rhs.right(), lhs.height() - rhs.bottom() - rhs.bottom()), lhs.angle());
     }
 
-    constexpr inline ZQRectF ZQRectF::marginsAdded(const QMarginsF &margins) const noexcept
+    inline ZQRectF ZQRectF::marginsAdded(const QMarginsF &margins) const noexcept
     {
         return ZQRectF(QPointF(xp - margins.left(), yp - margins.top()),
-                      QSizeF(w + margins.left() + margins.right(), h + margins.top() + margins.bottom()));
+                      QPointF(w + margins.left() + margins.right(), h + margins.bottom() + margins.bottom()), a);
     }
 
-    constexpr inline ZQRectF ZQRectF::marginsRemoved(const QMarginsF &margins) const noexcept
+    inline ZQRectF ZQRectF::marginsRemoved(const QMarginsF &margins) const noexcept
     {
         return ZQRectF(QPointF(xp + margins.left(), yp + margins.top()),
-                      QSizeF(w - margins.left() - margins.right(), h - margins.top() - margins.bottom()));
+                      QPointF(w - margins.left() - margins.right(), h - margins.bottom() - margins.bottom()), a);
     }
 
     inline ZQRectF &ZQRectF::operator+=(const QMarginsF &margins) noexcept

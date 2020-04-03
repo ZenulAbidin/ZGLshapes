@@ -5,4 +5,4 @@ There are no libraries which can create and manipulate 2D and 3D shapes in a fra
 
 Currently these classes depend on Qt5, and there are only 2D shapes for now.
 
-This code is **experimental**. It may not compile.
+This code is **experimental**. It may not compile. There is **no** stable API, the APIs are subject to change without warning.

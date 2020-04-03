@@ -39,7 +39,9 @@
 ****************************************************************************/
 
 #include "z_qtri.h"
-//#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/register/point.hpp>
+BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(QPointF, qreal, boost::geometry::cs::cartesian, x, y, setX, setY);
 
 
 namespace z_qtshapes {
@@ -193,8 +195,8 @@ namespace z_qtshapes {
 
         In addition, ZQTri provides the getCoords() function which extracts
         the position of the triangle's top-left and bottom-right corner,
-        and the getTri() function which extracts the triangle's top-left
-        corner, width and height. Use the setCoords() and setTri()
+        and the getCoords() function which extracts the triangle's top-left
+        corner, width and height. Use the setCoords() and setCoords()
         function to manipulate the triangle's coordinates and dimensions
         in one go.
 
@@ -824,71 +826,71 @@ namespace z_qtshapes {
 
 
     /*!
-        \fn void ZQTri::getTri(int *x1, int *y1, int *x2, int *y2, int *x3, int *y3) const
+        \fn void ZQTri::getCoords(int *x1, int *y1, int *x2, int *y2, int *x3, int *y3) const
 
         Extracts the position of the triangle's first point to *\a x1
         and *\a y1, its second point to *\a x2 and *\a y2, and its third point
         to *\a x3 and *\a y3.
 
-        \sa setTri()
+        \sa setCoords()
     */
 
     /*!
-        \fn void ZQTri::getTri(int *x1, int *y1, int *x2, int *y2, int *x3, int *y3, int *angle) const
+        \fn void ZQTri::getCoords(int *x1, int *y1, int *x2, int *y2, int *x3, int *y3, int *angle) const
 
         Extracts the position of the triangle's first point to *\a x1
         and *\a y1, its second point to *\a x2 and *\a y2, and its third point
         to *\a x3 and *\a y3, and its angle to *\a angle in degrees.
 
-        \sa setTri()
+        \sa setCoords()
     */
 
     /*!
-        \fn void ZQTri::getTriRadians(int *x1, int *y1, int *x2, int *y2, int *x3, int *y3, qreal *angle) const
+        \fn void ZQTri::getCoordsRadians(int *x1, int *y1, int *x2, int *y2, int *x3, int *y3, qreal *angle) const
 
         Extracts the position of the triangle's first point to *\a x1
         and *\a y1, its second point to *\a x2 and *\a y2, and its third point
         to *\a x3 and *\a y3, and its angle to *\a angle in radians.
 
-        \sa setTriRadians()
+        \sa setCoordsRadians()
     */
 
 
 
     /*!
-        \fn void ZQTri::setTri(int x1, int y1, int x2, int y2, int x3, int y3)
+        \fn void ZQTri::setCoords(int x1, int y1, int x2, int y2, int x3, int y3)
 
         Sets the coordinates of the triangle's first point to (\a{x1},
         \a{y1}), its second point to (\a{x2}, \a{y2}), and its third
         point to (\a{x3}, \a{y3}).
 
-        \sa getTri()
+        \sa getCoords()
     */
 
     /*!
-        \fn void ZQTri::setTri(int x1, int y1, int x2, int y2, int x3, int y3, int angle)
+        \fn void ZQTri::setCoords(int x1, int y1, int x2, int y2, int x3, int y3, int angle)
 
         Sets the coordinates of the triangle's first point to (\a{x1},
         \a{y1}), its second point to (\a{x2}, \a{y2}), and its third
         point to (\a{x3}, \a{y3}), and its angle to \a angle in degrees.
 
-        \sa getTri()
+        \sa getCoords()
     */
 
     /*!
-        \fn void ZQTri::setTriRadians(int x1, int y1, int x2, int y2, int x3, int y3, qreal angle)
+        \fn void ZQTri::setCoordsRadians(int x1, int y1, int x2, int y2, int x3, int y3, qreal angle)
 
         Sets the coordinates of the triangle's first point to (\a{x1},
         \a{y1}), its second point to (\a{x2}, \a{y2}), and its third
         point to (\a{x3}, \a{y3}), and its angle to \a angle in radians.
 
-        \sa getTriRadians()
+        \sa getCoordsRadians()
     */
 
 
 
     /*!
-        \fn bool ZQTri::contains(const QPoint &point, bool proper) const
+        \fn bool ZQTri::contains(const QPoint &point) const
 
         Returns \c true if the given \a point is inside or on the edge of
         the triangle, otherwise returns \c false. If \a proper is true, this
@@ -898,22 +900,20 @@ namespace z_qtshapes {
         \sa intersects()
     */
 
-    bool ZQTri::contains(const QPoint &p, bool proper) const noexcept
+    bool ZQTri::contains(const QPoint &p) const noexcept
     {
-        if (isNull() || r.isNull())
+        if (isNull() || p.isNull())
             return false;
 
         const QPainterPath path1 = toPath();
 
-        // FIXME proper=false is not honored because there isn't a way
-        // to test if a point is on the edge.
         return path1.contains(p);
 
     }
 
 
     /*!
-        \fn bool ZQTri::contains(int x, int y, bool proper) const
+        \fn bool ZQTri::contains(int x, int y) const
         \overload
 
         Returns \c true if the point (\a x, \a y) is inside or on the edge of
@@ -966,9 +966,9 @@ namespace z_qtshapes {
     QPainterPath ZQTri::operator|(const ZQTri &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const QPainterPath path1 = toPath();
         const QPainterPath path2 = r.toPath();
@@ -999,8 +999,13 @@ namespace z_qtshapes {
         \sa intersected()
     */
 
-    QPainterPath ZQTri::operator&(const ZQTriF &r) const noexcept
+    QPainterPath ZQTri::operator&(const ZQTri &r) const noexcept
     {
+        if (isNull())
+            return r.toPath();
+        if (r.isNull())
+            return toPath();
+
         const QPainterPath path1 = toPath();
         const QPainterPath path2 = r.toPath();
 
@@ -1081,8 +1086,13 @@ namespace z_qtshapes {
         Returns a printable string of the triangle.
     */
 
+    QString ZQTri::toString() const noexcept
+    {
+        return QString("ZQTri(%1,%2 %3,%4 %5,%6 %7 degrees)").arg(QString::number(x1p), QString::number(y1p),
+                QString::number(x2p), QString::number(y2p), QString::number(x3p), QString::number(y3p), QString::number(a));
+    }
 
-    constexpr QPainterPath ZQTri::toPath() const noexcept
+    QPainterPath ZQTri::toPath() const noexcept
     {
         QPainterPath path;
         QPointF c1 = QPointF(first());
@@ -1107,7 +1117,7 @@ namespace z_qtshapes {
         return path;
     }
 
-    constexpr QPainterPath ZQTri::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
+    QPainterPath ZQTri::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
     {
         QPainterPath path;
         QPointF c1 = QPointF(first());
@@ -1124,7 +1134,7 @@ namespace z_qtshapes {
         c2a += cn;
         c3a += cn;
 
-        QPoint c1r, c2r, c3r;
+        QPointF c1r, c2r, c3r;
         boost::geometry::strategy::transform::matrix_transformer<float, 2, 2>project2D(mat(0,0), mat(0,1), mat(0,2), mat(1,0), mat(1,1), mat(1,2), mat(2,0), mat(2,1), mat(2,2));
         boost::geometry::transform(c1a - ref, c1r, project2D);
         boost::geometry::transform(c2a - ref, c2r, project2D);
@@ -1154,12 +1164,9 @@ namespace z_qtshapes {
 
     QDataStream &operator<<(QDataStream &s, const ZQTri &r)
     {
-        if (s.version() == 1)
-            s << (qint16)r.left() << (qint16)r.top()
-              << (qint16)r.right() << (qint16)r.bottom() << (qint16)r.angle();
-        else
-            s << (qint32)r.left() << (qint32)r.top()
-              << (qint32)r.right() << (qint32)r.bottom() << (qint32)r.angle();
+        s << (qint32)r.x1() << (qint32)r.y1()
+          << (qint32)r.x2() << (qint32)r.y2()
+          << (qint32)r.x3() << (qint32)r.y3() << (qint32)r.angle();
         return s;
     }
 
@@ -1175,18 +1182,9 @@ namespace z_qtshapes {
 
     QDataStream &operator>>(QDataStream &s, ZQTri &r)
     {
-        if (s.version() == 1) {
-            qint16 x1, y1, x2, y2, a;
-            s >> x1; s >> y1; s >> x2; s >> y2; s >> a
-            r.setCoords(x1, y1, x2, y2);
-            r.setAngle(a);
-        }
-        else {
-            qint32 x1, y1, x2, y2, a;
-            s >> x1; s >> y1; s >> x2; s >> y2; s >> a;
-            r.setCoords(x1, y1, x2, y2);
-            r.setAngle(a);
-        }
+        qint32 x1, y1, x2, y2, x3, y3, a;
+        s >> x1; s >> y1; s >> x2; s >> y2; s >> x3; s >> y3; s >> a;
+        r.setCoords(x1, y1, x2, y2, x3, y3, a);
         return s;
     }
 
@@ -1198,7 +1196,7 @@ namespace z_qtshapes {
     {
         QDebugStateSaver saver(dbg);
         dbg.nospace();
-        dbg << toString();
+        dbg << r.toString();
         return dbg;
     }
     #endif
@@ -1335,8 +1333,8 @@ namespace z_qtshapes {
 
         In addition, ZQTriF provides the getCoords() function which extracts
         the position of the triangle's top-left and bottom-right corner,
-        and the getTri() function which extracts the triangle's top-left
-        corner, width and height. Use the setCoords() and setTri()
+        and the getCoords() function which extracts the triangle's top-left
+        corner, width and height. Use the setCoords() and setCoords()
         function to manipulate the triangle's coordinates and dimensions
         in one go.
 
@@ -1973,71 +1971,71 @@ namespace z_qtshapes {
 
 
     /*!
-        \fn void ZQTriF::getTri(qreal *x1, qreal *y1, qreal *x2, qreal *y2, qreal *x3, qreal *y3) const
+        \fn void ZQTriF::getCoords(qreal *x1, qreal *y1, qreal *x2, qreal *y2, qreal *x3, qreal *y3) const
 
         Extracts the position of the triangle's first point to *\a x1
         and *\a y1, its second point to *\a x2 and *\a y2, and its third point
         to *\a x3 and *\a y3.
 
-        \sa setTri()
+        \sa setCoords()
     */
 
     /*!
-        \fn void ZQTriF::getTri(qreal *x1, qreal *y1, qreal *x2, qreal *y2, qreal *x3, qreal *y3, qreal *angle) const
+        \fn void ZQTriF::getCoords(qreal *x1, qreal *y1, qreal *x2, qreal *y2, qreal *x3, qreal *y3, qreal *angle) const
 
         Extracts the position of the triangle's first point to *\a x1
         and *\a y1, its second point to *\a x2 and *\a y2, and its third point
         to *\a x3 and *\a y3, and its angle to *\a angle in degrees.
 
-        \sa setTri()
+        \sa setCoords()
     */
 
     /*!
-        \fn void ZQTriF::getTriRadians(qreal *x1, qreal *y1, qreal *x2, qreal *y2, qreal *x3, qreal *y3, qreal *angle) const
+        \fn void ZQTriF::getCoordsRadians(qreal *x1, qreal *y1, qreal *x2, qreal *y2, qreal *x3, qreal *y3, qreal *angle) const
 
         Extracts the position of the triangle's first point to *\a x1
         and *\a y1, its second point to *\a x2 and *\a y2, and its third point
         to *\a x3 and *\a y3, and its angle to *\a angle in radians.
 
-        \sa setTriRadians()
+        \sa setCoordsRadians()
     */
 
 
 
     /*!
-        \fn void ZQTriF::setTri(qreal x1, qreal y1, qreal x2, qreal y2, qreal x3, qreal y3)
+        \fn void ZQTriF::setCoords(qreal x1, qreal y1, qreal x2, qreal y2, qreal x3, qreal y3)
 
         Sets the coordinates of the triangle's first point to (\a{x1},
         \a{y1}), its second point to (\a{x2}, \a{y2}), and its third
         point to (\a{x3}, \a{y3}).
 
-        \sa getTri()
+        \sa getCoords()
     */
 
     /*!
-        \fn void ZQTriF::setTri(qreal x1, qreal y1, qreal x2, qreal y2, qreal x3, qreal y3, qreal angle)
+        \fn void ZQTriF::setCoords(qreal x1, qreal y1, qreal x2, qreal y2, qreal x3, qreal y3, qreal angle)
 
         Sets the coordinates of the triangle's first point to (\a{x1},
         \a{y1}), its second point to (\a{x2}, \a{y2}), and its third
         point to (\a{x3}, \a{y3}), and its angle to \a angle in degrees.
 
-        \sa getTri()
+        \sa getCoords()
     */
 
     /*!
-        \fn void ZQTriF::setTriRadians(qreal x1, qreal y1, qreal x2, qreal y2, qreal x3, qreal y3, qreal angle)
+        \fn void ZQTriF::setCoordsRadians(qreal x1, qreal y1, qreal x2, qreal y2, qreal x3, qreal y3, qreal angle)
 
         Sets the coordinates of the triangle's first point to (\a{x1},
         \a{y1}), its second point to (\a{x2}, \a{y2}), and its third
         point to (\a{x3}, \a{y3}), and its angle to \a angle in radians.
 
-        \sa getTriRadians()
+        \sa getCoordsRadians()
     */
 
 
 
     /*!
-        \fn bool ZQTriF::contains(const QPointF &point, bool proper) const
+        \fn bool ZQTriF::contains(const QPointF &point) const
 
         Returns \c true if the given \a point is inside or on the edge of
         the triangle, otherwise returns \c false. If \a proper is true, this
@@ -2047,22 +2045,20 @@ namespace z_qtshapes {
         \sa intersects()
     */
 
-    bool ZQTriF::contains(const QPointF &p, bool proper) const noexcept
+    bool ZQTriF::contains(const QPointF &p) const noexcept
     {
-        if (isNull() || r.isNull())
+        if (isNull() || p.isNull())
             return false;
 
         const QPainterPath path1 = toPath();
 
-        // FIXME proper=false is not honored because there isn't a way
-        // to test if a point is on the edge.
         return path1.contains(p);
 
     }
 
 
     /*!
-        \fn bool ZQTriF::contains(qreal x, qreal y, bool proper) const
+        \fn bool ZQTriF::contains(qreal x, qreal y) const
         \overload
 
         Returns \c true if the point (\a x, \a y) is inside or on the edge of
@@ -2089,7 +2085,7 @@ namespace z_qtshapes {
         triangle (not on the edge).
     */
 
-    bool ZQTri::contains(const ZQTri &r, bool proper) const noexcept
+    bool ZQTriF::contains(const ZQTriF &r, bool proper) const noexcept
     {
         if (isNull() || r.isNull())
             return false;
@@ -2115,9 +2111,9 @@ namespace z_qtshapes {
     QPainterPath ZQTriF::operator|(const ZQTriF &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const QPainterPath path1 = toPath();
         const QPainterPath path2 = r.toPath();
@@ -2148,8 +2144,13 @@ namespace z_qtshapes {
         \sa intersected()
     */
 
-    QPainterPath ZQTri::operator&(const ZQTriF &r) const noexcept
+    QPainterPath ZQTriF::operator&(const ZQTriF &r) const noexcept
     {
+        if (isNull())
+            return r.toPath();
+        if (r.isNull())
+            return toPath();
+
         const QPainterPath path1 = toPath();
         const QPainterPath path2 = r.toPath();
 
@@ -2231,7 +2232,14 @@ namespace z_qtshapes {
     */
 
 
-    constexpr QPainterPath ZQTri::toPath() const noexcept
+    QString ZQTriF::toString() const noexcept
+    {
+        return QString("ZQTriF(%1,%2 %3,%4 %5,%6 %7 degrees)").arg(QString::number(x1p), QString::number(y1p),
+            QString::number(x2p), QString::number(y2p), QString::number(x3p), QString::number(y3p), QString::number(a));
+    }
+
+
+    QPainterPath ZQTriF::toPath() const noexcept
     {
         QPainterPath path;
         QPointF c1 = first();
@@ -2256,7 +2264,7 @@ namespace z_qtshapes {
         return path;
     }
 
-    constexpr QPainterPath ZQTri::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
+    QPainterPath ZQTriF::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
     {
         QPainterPath path;
         QPointF c1 = first();
@@ -2273,7 +2281,7 @@ namespace z_qtshapes {
         c2a += cn;
         c3a += cn;
 
-        QPoint c1r, c2r, c3r;
+        QPointF c1r, c2r, c3r;
         boost::geometry::strategy::transform::matrix_transformer<float, 2, 2>project2D(mat(0,0), mat(0,1), mat(0,2), mat(1,0), mat(1,1), mat(1,2), mat(2,0), mat(2,1), mat(2,2));
         boost::geometry::transform(c1a - ref, c1r, project2D);
         boost::geometry::transform(c2a - ref, c2r, project2D);
@@ -2293,28 +2301,8 @@ namespace z_qtshapes {
         Returns a ZQTri based on the values of this triangle.  Note that the
         coordinates in the returned triangle are rounded to the nearest integer.
 
-        \sa ZQTriF(), toAlignedTri()
+        \sa ZQTriF()
     */
-
-    /*!
-        \fn ZQTri ZQTriF::toAlignedTri() const
-        \since 4.3
-
-        Returns a ZQTri based on the values of this triangle that is the
-        smallest possible integer triangle that completely contains this
-        triangle.
-
-        \sa toTri()
-    */
-
-    ZQTri ZQTriF::toAlignedTri() const noexcept
-    {
-        int xmin = int(qFloor(xp));
-        int xmax = int(qCeil(xp + w));
-        int ymin = int(qFloor(yp));
-        int ymax = int(qCeil(yp + h));
-        return ZQTri(xmin, ymin, xmax - xmin, ymax - ymin);
-    }
 
 
     /*****************************************************************************
@@ -2334,7 +2322,8 @@ namespace z_qtshapes {
 
     QDataStream &operator<<(QDataStream &s, const ZQTriF &r)
     {
-        s << double(r.x()) << double(r.y()) << double(r.width()) << double(r.height());
+        s << double(r.x1()) << double(r.y1()) << double(r.x2()) << double(r.y2())
+        << double(r.x3()) << double(r.y3()) << double(r.angle());
         return s;
     }
 
@@ -2351,13 +2340,16 @@ namespace z_qtshapes {
 
     QDataStream &operator>>(QDataStream &s, ZQTriF &r)
     {
-        double x, y, w, h, a;
-        s >> x;
-        s >> y;
-        s >> w;
-        s >> h;
+        double x1, y1, x2, y2, x3, y3, a;
+        s >> x1;
+        s >> y1;
+        s >> x2;
+        s >> y2;
+        s >> x3;
+        s >> y3;
         s >> a;
-        r.setTri(qreal(x), qreal(y), qreal(w), qreal(h));
+        // I can't help but imagine casting from double to qreal may shave off precision and cause a vulnerability...
+        r.setCoords(qreal(x1), qreal(y1), qreal(x2), qreal(y2), qreal(x3), qreal(y3), qreal(a));
         return s;
     }
 
@@ -2369,7 +2361,7 @@ namespace z_qtshapes {
     {
         QDebugStateSaver saver(dbg);
         dbg.nospace();
-        dbg << toString();
+        dbg << r.toString();
         return dbg;
     }
     #endif

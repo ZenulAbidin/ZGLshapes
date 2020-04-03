@@ -67,7 +67,7 @@ namespace z_qtshapes {
         height integers, or from a QPoint and a QSize.  The following code
         creates two identical ellipses.
 
-        \snippet code/src_corelib_tools_qrect.cpp 0
+        \snippet code/src_corelib_tools_qEllipse.cpp 0
 
         There is a third constructor that creates a ZQEllipse using the
         top-left and bottom-right coordinates, but we recommend that you
@@ -85,7 +85,7 @@ namespace z_qtshapes {
         position, and the translated() function returns a translated copy
         of this ellipse.
 
-        The size() function returns the rectange's dimensions as a
+        The size() function returns the Ellipseange's dimensions as a
         QSize. The dimensions can also be retrieved separately using the
         width() and height() functions. To manipulate the dimensions use
         the setSize(), setWidth() or setHeight() functions. Alternatively,
@@ -102,8 +102,8 @@ namespace z_qtshapes {
 
         \table
         \row
-        \li \inlineimage qrect-intersect.png
-        \li \inlineimage qrect-unite.png
+        \li \inlineimage qEllipse-intersect.png
+        \li \inlineimage qEllipse-unite.png
         \row
         \li intersected()
         \li united()
@@ -142,14 +142,14 @@ namespace z_qtshapes {
 
         \table
         \row
-            \li \inlineimage qrect-diagram-zero.png
-            \li \inlineimage qrect-diagram-one.png
+            \li \inlineimage qEllipse-diagram-zero.png
+            \li \inlineimage qEllipse-diagram-one.png
         \row
             \li Logical representation
             \li One pixel wide pen
         \row
-            \li \inlineimage qrect-diagram-two.png
-            \li \inlineimage qrect-diagram-three.png
+            \li \inlineimage qEllipse-diagram-two.png
+            \li \inlineimage qEllipse-diagram-three.png
         \row
             \li Two pixel wide pen
             \li Three pixel wide pen
@@ -170,7 +170,7 @@ namespace z_qtshapes {
         horizontally, leaving the ellipse's left edge at the given x
         coordinate and its size unchanged.
 
-        \image qrect-coordinates.png
+        \image qEllipse-coordinates.png
 
         Note that for historical reasons the values returned by the
         bottom() and right() functions deviate from the true bottom-right
@@ -327,17 +327,21 @@ namespace z_qtshapes {
         \sa isValid(), isEmpty()
     */
 
-    void ZQEllipse::normalize() const noexcept
+    void ZQEllipse::normalize() noexcept
     {
-        if (w < 0) {
-            xp += w;
-            w = -w;
+        int temp;
+        if (x2 < x1) {
+            temp = x2;
+            x2 = x1;
+            x1 = temp;
         }
-        if (h < 0) {
-            yp += h;
-            h = -h;
+        if (y2 < y1) {
+            temp = y2;
+            y2 = y1;
+            y1 = temp;
         }
     }
+
 
     /*!
         Returns a normalized ellipse; i.e., an ellipse that has a
@@ -835,7 +839,7 @@ namespace z_qtshapes {
         Returns a copy of the ellipse that has its width and height
         exchanged:
 
-        \snippet code/src_corelib_tools_qrect.cpp 2
+        \snippet code/src_corelib_tools_qEllipse.cpp 2
 
         \sa QSize::transposed()
     */
@@ -1067,7 +1071,7 @@ namespace z_qtshapes {
         \sa intersects()
     */
 
-    bool ZQEllipse::contains(const QPoint &p, bool proper) const noexcept
+    bool ZQEllipse::contains(const QPoint &p) const noexcept
     {
         if (isNull())
             return false;
@@ -1075,8 +1079,6 @@ namespace z_qtshapes {
         const ZQEllipse first = normalized();
         const QPainterPath path1 = first.toPath();
 
-        // FIXME proper=false is not honored because there isn't a way
-        // to test if a point is on the edge.
         return path1.contains(p);
 
     }
@@ -1136,12 +1138,12 @@ namespace z_qtshapes {
         \sa united()
     */
 
-    ZQEllipse ZQEllipse::operator|(const ZQEllipse &r) const noexcept
+    QPainterPath ZQEllipse::operator|(const ZQEllipse &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const ZQEllipse first = normalized();
         const ZQEllipse second = r.normalized();
@@ -1159,7 +1161,7 @@ namespace z_qtshapes {
         Returns the bounding ellipse of this ellipse and the given \an ellipse.
         The result will always have an angle of 0 degrees.
 
-        \image qrect-unite.png
+        \image qEllipse-unite.png
 
         \sa intersected()
     */
@@ -1175,7 +1177,7 @@ namespace z_qtshapes {
         \sa intersected()
     */
 
-    ZQEllipseF ZQEllipseF::operator&(const ZQEllipseF &r) const noexcept
+    QPainterPath ZQEllipse::operator&(const ZQEllipse &r) const noexcept
     {
         const ZQEllipseF first = normalized();
         const ZQEllipseF second = r.normalized();
@@ -1194,7 +1196,7 @@ namespace z_qtshapes {
         Returns the intersection of this ellipse and the given \a
         ellipse. Note that \c{r.intersected(s)} is equivalent to \c{r & s}.
 
-        \image qrect-intersect.png
+        \image qEllipse-intersect.png
 
         \sa intersects(), united()
     */
@@ -1329,7 +1331,13 @@ namespace z_qtshapes {
         Returns a printable string of the ellipse.
     */
 
-    constexpr QPainterPath ZQEllipse::toPath() const noexcept
+    QString ZQEllipse::toString() const noexcept
+    {
+        return QString("ZQEllipse(%1,%2 size %3x%4 %5 degrees)").arg(QString::number(x1), QString::number(y1),
+                QString::number(width()), QString::number(height()), QString::number(a));
+    }
+
+    QPainterPath ZQEllipse::toPath() const noexcept
     {
 
         QPainterPath path;
@@ -1343,6 +1351,7 @@ namespace z_qtshapes {
         c5.rx() *= 4/3;
         QPointF c6 = QPointF(topLeft());
         c6.rx() *= 4/3;
+        QPointF cn = center();
 
         QPointF c1a, c2a, c3a, c4a, c5a, c6a;
         boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(angle());
@@ -1367,7 +1376,7 @@ namespace z_qtshapes {
         return path;
     }
 
-    constexpr QPainterPath ZQEllipse::toPath(const QMatrix3x3 &mat, const QPoint& ref) const noexcept
+    QPainterPath ZQEllipse::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
     {
         QPainterPath path;
         QPointF c1 = QPointF(center().x(), top());
@@ -1380,6 +1389,7 @@ namespace z_qtshapes {
         c5.rx() *= 4/3;
         QPointF c6 = QPointF(topLeft());
         c6.rx() *= 4/3;
+        QPointF cn = center();
 
         QPointF c1a, c2a, c3a, c4a, c5a, c6a;
         boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(angle());
@@ -1408,8 +1418,8 @@ namespace z_qtshapes {
         c2r += ref;
         c3r += ref;
         c4r += ref;
-        c5r += reff;
-        c6r += reff;
+        c5r += ref;
+        c6r += ref;
 
         path.moveTo(c1r);
         path.cubicTo(c2r, c3r, c4r);
@@ -1435,12 +1445,8 @@ namespace z_qtshapes {
 
     QDataStream &operator<<(QDataStream &s, const ZQEllipse &r)
     {
-        if (s.version() == 1)
-            s << (qint16)r.left() << (qint16)r.top()
-              << (qint16)r.right() << (qint16)r.bottom() << (qint16)r.angle();
-        else
-            s << (qint32)r.left() << (qint32)r.top()
-              << (qint32)r.right() << (qint32)r.bottom() << (qint32)r.angle();
+        s << (qint32)r.left() << (qint32)r.top()
+          << (qint32)r.right() << (qint32)r.bottom() << (qint32)r.angle();
         return s;
     }
 
@@ -1456,18 +1462,11 @@ namespace z_qtshapes {
 
     QDataStream &operator>>(QDataStream &s, ZQEllipse &r)
     {
-        if (s.version() == 1) {
-            qint16 x1, y1, x2, y2, a;
-            s >> x1; s >> y1; s >> x2; s >> y2; s >> a
-            r.setCoords(x1, y1, x2, y2);
-            r.setAngle(a);
-        }
-        else {
-            qint32 x1, y1, x2, y2, a;
-            s >> x1; s >> y1; s >> x2; s >> y2; s >> a;
-            r.setCoords(x1, y1, x2, y2);
-            r.setAngle(a);
-        }
+
+        qint32 x1, y1, x2, y2, a;
+        s >> x1; s >> y1; s >> x2; s >> y2; s >> a;
+        r.setCoords(x1, y1, x2, y2);
+        r.setAngle(a);
         return s;
     }
 
@@ -1479,7 +1478,7 @@ namespace z_qtshapes {
     {
         QDebugStateSaver saver(dbg);
         dbg.nospace();
-        dbg << toString();
+        dbg << r.toString();
         return dbg;
     }
     #endif
@@ -1502,7 +1501,7 @@ namespace z_qtshapes {
         height coordinates, or from a QPointF and a QSizeF.  The following
         code creates two identical ellipses.
 
-        \snippet code/src_corelib_tools_qrect.cpp 1
+        \snippet code/src_corelib_tools_qEllipse.cpp 1
 
         There is also a third constructor creating a ZQEllipseF from a ZQEllipse,
         and a corresponding toEllipse() function that returns a ZQEllipse object
@@ -1519,7 +1518,7 @@ namespace z_qtshapes {
         current position, and the translated() function returns a
         translated copy of this ellipse.
 
-        The size() function returns the rectange's dimensions as a
+        The size() function returns the Ellipseange's dimensions as a
         QSizeF. The dimensions can also be retrieved separately using the
         width() and height() functions. To manipulate the dimensions use
         the setSize(), setWidth() or setHeight() functions. Alternatively,
@@ -1537,8 +1536,8 @@ namespace z_qtshapes {
 
         \table
         \row
-        \li \inlineimage qrect-intersect.png
-        \li \inlineimage qrect-unite.png
+        \li \inlineimage qEllipse-intersect.png
+        \li \inlineimage qEllipse-unite.png
         \row
         \li intersected()
         \li united()
@@ -1577,14 +1576,14 @@ namespace z_qtshapes {
 
         \table
         \row
-            \li \inlineimage qrect-diagram-zero.png
-            \li \inlineimage qrectf-diagram-one.png
+            \li \inlineimage qEllipse-diagram-zero.png
+            \li \inlineimage qEllipsef-diagram-one.png
         \row
             \li Logical representation
             \li One pixel wide pen
         \row
-            \li \inlineimage qrectf-diagram-two.png
-            \li \inlineimage qrectf-diagram-three.png
+            \li \inlineimage qEllipsef-diagram-two.png
+            \li \inlineimage qEllipsef-diagram-three.png
         \row
             \li Two pixel wide pen
             \li Three pixel wide pen
@@ -1605,7 +1604,7 @@ namespace z_qtshapes {
         vertically, leaving the ellipse's bottom edge at the given y
         coordinate and its size unchanged.
 
-        \image qrectf-coordinates.png
+        \image qEllipsef-coordinates.png
 
         It is also possible to add offsets to this ellipse's coordinates
         using the adjust() function, as well as retrieve a new ellipse
@@ -1719,7 +1718,7 @@ namespace z_qtshapes {
         \sa isValid(), isEmpty()
     */
 
-    void ZQEllipseF::normalize() const noexcept
+    void ZQEllipseF::normalize() noexcept
     {
         if (w < 0) {
             xp += w;
@@ -2096,7 +2095,7 @@ namespace z_qtshapes {
         Returns a copy of the ellipse that has its width and height
         exchanged:
 
-        \snippet code/src_corelib_tools_qrect.cpp 3
+        \snippet code/src_corelib_tools_qEllipse.cpp 3
 
         \sa QSizeF::transposed()
     */
@@ -2289,7 +2288,7 @@ namespace z_qtshapes {
         \sa intersects()
     */
 
-    bool ZQEllipseF::contains(const QPointF &p, bool proper=false) const noexcept
+    bool ZQEllipseF::contains(const QPointF &p) const noexcept
     {
         if (isNull())
             return false;
@@ -2297,8 +2296,6 @@ namespace z_qtshapes {
         const ZQEllipseF first = normalized();
         const QPainterPath path1 = first.toPath();
 
-        // FIXME proper=false is not honored because there isn't a way
-        // to test if a point is on the edge.
         return path1.contains(p);
 
     }
@@ -2320,15 +2317,16 @@ namespace z_qtshapes {
         otherwise returns \c false.
     */
 
-    bool ZQEllipseF::contains(const ZQEllipseF &r, bool proper=false) const noexcept
+    bool ZQEllipseF::contains(const ZQEllipseF &r, bool proper) const noexcept
     {
         const ZQEllipseF first = normalized();
         const ZQEllipseF second = r.normalized();
         const QPainterPath path1 = first.toPath();
         const QPainterPath path2 = second.toPath();
 
-        // FIXME proper=false is not honored because there isn't a way
-        // to test if a point is on the edge.
+        if (proper && path1 == path2) {
+            return false;
+        }
         return path1.contains(path2);
     }
 
@@ -2407,12 +2405,12 @@ namespace z_qtshapes {
         \sa united()
     */
 
-    ZQEllipseF ZQEllipseF::operator|(const ZQEllipseF &r) const noexcept
+    QPainterPath ZQEllipseF::operator|(const ZQEllipseF &r) const noexcept
     {
         if (isNull())
-            return r;
+            return r.toPath();
         if (r.isNull())
-            return *this;
+            return toPath();
 
         const ZQEllipseF first = normalized();
         const ZQEllipseF second = r.normalized();
@@ -2430,7 +2428,7 @@ namespace z_qtshapes {
         Returns the bounding ellipse of this ellipse and the given \a
         ellipse. The result will always have an angle of 0 degrees.
 
-        \image qrect-unite.png
+        \image qEllipse-unite.png
 
         \sa intersected()
     */
@@ -2448,6 +2446,11 @@ namespace z_qtshapes {
 
     QPainterPath ZQEllipseF::operator&(const ZQEllipseF &r) const noexcept
     {
+        if (isNull())
+            return r.toPath();
+        if (r.isNull())
+            return toPath();
+
         const ZQEllipseF first = normalized();
         const ZQEllipseF second = r.normalized();
 
@@ -2465,7 +2468,7 @@ namespace z_qtshapes {
         ellipse. Note that \c {r.intersected(s)} is equivalent to \c
         {r & s}.
 
-        \image qrect-intersect.png
+        \image qEllipse-intersect.png
 
         \sa intersects(), united()
     */
@@ -2483,28 +2486,11 @@ namespace z_qtshapes {
         \sa contains()
     */
 
-    bool ZQEllipseF::intersects(const ZQEllipseF &r, bool proper = true) const noexcept
+    bool ZQEllipseF::intersects(const ZQEllipseF &r) const noexcept
     {
-
         const ZQEllipseF first = normalized();
         const ZQEllipseF second = r.normalized();
 
-        const QPointF first_c = first.center();
-        const QPointF second_c = second.center();
-
-        const qreal first_cx = first_c.x();
-        const qreal first_cy = first_c.y();
-        const qreal second_cx = second_c.x();
-        const qreal second_cy = second_c.y();
-
-        const qreal first_a = first.angle();
-        const qreal second_a = second.angle();
-
-        qreal first_x1, first_x2, first_y1, first_y2;
-        qreal second_x1, second_x2, second_y1, second_y2;
-        first.getCoords(&first_x1, &first_x2, &first_y1, &first_y2);
-        second.getCoords(&second_x1, &second_x2, &second_y1, &second_y2);
-        
         const QPainterPath path1 = first.toPath();
         const QPainterPath path2 = second.toPath();
 
@@ -2537,8 +2523,9 @@ namespace z_qtshapes {
         int xmax = int(qCeil(xp + w));
         int ymin = int(qFloor(yp));
         int ymax = int(qCeil(yp + h));
-        return ZQEllipse(xmin, ymin, xmax - xmin, ymax - ymin);
+        return ZQEllipse(xmin, ymin, xmax - xmin, ymax - ymin, a);
     }
+
 
     /*!
         \fn void ZQEllipseF::moveCenter(const QPointF &position)
@@ -2648,7 +2635,13 @@ namespace z_qtshapes {
         Returns a printable string of the ellipse.
     */
 
-    constexpr QPainterPath ZQEllipseF::toPath() const noexcept
+    QString ZQEllipseF::toString() const noexcept
+    {
+        return QString("ZQEllipseF(%1,%2 size %3x%4 %5 degrees)").arg(QString::number(xp), QString::number(yp),
+                QString::number(w), QString::number(h), QString::number(a));
+    }
+
+    QPainterPath ZQEllipseF::toPath() const noexcept
     {
 
         QPainterPath path;
@@ -2662,6 +2655,7 @@ namespace z_qtshapes {
         c5.rx() *= 4/3;
         QPointF c6 = topLeft();
         c6.rx() *= 4/3;
+        QPointF cn = center();
 
         QPointF c1a, c2a, c3a, c4a, c5a, c6a;
         boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, int, 2, 2> rotate(angle());
@@ -2686,7 +2680,7 @@ namespace z_qtshapes {
         return path;
     }
 
-    constexpr QPainterPath ZQEllipseF::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
+    QPainterPath ZQEllipseF::toPath(const QMatrix3x3 &mat, const QPointF& ref) const noexcept
     {
         QPainterPath path;
         QPointF c1 = QPointF(center().x(), top());
@@ -2699,6 +2693,7 @@ namespace z_qtshapes {
         c5.rx() *= 4/3;
         QPointF c6 = topLeft();
         c6.rx() *= 4/3;
+        QPointF cn = center();
 
         QPointF c1a, c2a, c3a, c4a, c5a, c6a;
         boost::geometry::strategy::transform::rotate_transformer<boost::geometry::degree, qreal, 2, 2> rotate(angle());
@@ -2777,9 +2772,10 @@ namespace z_qtshapes {
         s >> w;
         s >> h;
         s >> a;
-        r.setEllipse(qreal(x), qreal(y), qreal(w), qreal(h));
+        r.setEllipse(qreal(x), qreal(y), qreal(w), qreal(h), qreal(a));
         return s;
     }
+
 
     #endif // QT_NO_DATASTREAM
 
@@ -2789,7 +2785,7 @@ namespace z_qtshapes {
     {
         QDebugStateSaver saver(dbg);
         dbg.nospace();
-        dbg << toString();
+        dbg << r.toString();
         return dbg;
     }
     #endif

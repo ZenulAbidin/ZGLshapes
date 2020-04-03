@@ -55,16 +55,16 @@ namespace z_qtshapes {
     class ZQPoint
     {
     public:
-        constexpr ZQPoint();
-        constexpr ZQPoint(int xpos, int ypos);
+        constexpr ZQPoint() noexcept;
+        constexpr ZQPoint(int xpos, int ypos) noexcept;
 
-        constexpr inline bool isNull() const;
+        constexpr inline bool isNull() const noexcept;
 
-        constexpr inline int x() const;
-        constexpr inline int y() const;
+        constexpr inline int x() const noexcept;
+        constexpr inline int y() const noexcept;
 
-        inline void setX(int x);
-        inline void setY(int y);
+        inline void setX(int x) noexcept;
+        inline void setY(int y) noexcept;
 
         constexpr inline int manhattanLength() const;
 
@@ -99,7 +99,7 @@ namespace z_qtshapes {
         friend constexpr inline const ZQPoint operator-(const ZQPoint &);
         friend constexpr inline const ZQPoint operator/(const ZQPoint &, qreal);
 
-        constexpr inline QString toString() const noexcept;
+        inline QString toString() const noexcept;
         constexpr inline QPoint toQPoint() const noexcept;
 
     private:
@@ -121,23 +121,23 @@ namespace z_qtshapes {
       ZQPoint inline functions
      *****************************************************************************/
 
-    constexpr inline ZQPoint::ZQPoint() : xp(0), yp(0) {}
+    constexpr inline ZQPoint::ZQPoint() noexcept: xp(0), yp(0) {}
 
-    constexpr inline ZQPoint::ZQPoint(int xpos, int ypos) : xp(xpos), yp(ypos) {}
+    constexpr inline ZQPoint::ZQPoint(int xpos, int ypos) noexcept: xp(xpos), yp(ypos) {}
 
-    constexpr inline bool ZQPoint::isNull() const
+    constexpr inline bool ZQPoint::isNull() const noexcept
     { return xp == 0 && yp == 0; }
 
-    constexpr inline int ZQPoint::x() const
+    constexpr inline int ZQPoint::x() const noexcept
     { return xp; }
 
-    constexpr inline int ZQPoint::y() const
+    constexpr inline int ZQPoint::y() const noexcept
     { return yp; }
 
-    inline void ZQPoint::setX(int xpos)
+    inline void ZQPoint::setX(int xpos) noexcept
     { xp = xpos; }
 
-    inline void ZQPoint::setY(int ypos)
+    inline void ZQPoint::setY(int ypos) noexcept
     { yp = ypos; }
 
     inline int constexpr ZQPoint::manhattanLength() const
@@ -149,12 +149,12 @@ namespace z_qtshapes {
     inline int &ZQPoint::ry()
     { return yp; }
 
-    constexpr inline QString toString() const noexcept
+    inline QString ZQPoint::toString() const noexcept
     {
-        return QString("ZQPointF(%1,%2)").arg(x1, y1));
+        return QString("ZQPoint(%1,%2)").arg(QString::number(xp), QString::number(yp));
     }
     
-    constexpr inline QPoint toQPoint() const noexcept
+    constexpr inline QPoint ZQPoint::toQPoint() const noexcept
     {
         return QPoint(xp, yp);
     }
@@ -175,7 +175,7 @@ namespace z_qtshapes {
     { xp = xp*factor; yp = yp*factor; return *this; }
 
     constexpr inline bool operator==(const ZQPoint &p1, const ZQPoint &p2)
-    { return p1.xp == p2.xp && p1.yp == p2.yp && p1.a == p2.a; }
+    { return p1.xp == p2.xp && p1.yp == p2.yp; }
 
     constexpr inline bool operator!=(const ZQPoint &p1, const ZQPoint &p2)
     { return p1.xp != p2.xp || p1.yp != p2.yp; }
@@ -231,15 +231,13 @@ namespace z_qtshapes {
     class ZQPointF
     {
     public:
-        constexpr ZQPointF();
-        constexpr ZQPointF(const ZQPoint &p);
-        constexpr ZQPointF(const ZQPoint &p, qreal angle);
-        constexpr ZQPointF(qreal xpos, qreal ypos);
-        constexpr ZQPointF(qreal xpos, qreal ypos, qreal angle);
+        constexpr ZQPointF() noexcept;
+        constexpr ZQPointF(const ZQPoint &p) noexcept;
+        constexpr ZQPointF(qreal xpos, qreal ypos) noexcept;
 
-        constexpr inline qreal manhattanLength() const;
+        constexpr inline qreal manhattanLength() const noexcept;
 
-        inline bool isNull() const;
+        inline bool isNull() const noexcept;
 
         constexpr inline qreal x() const noexcept;
         constexpr inline qreal y() const noexcept;
@@ -269,9 +267,9 @@ namespace z_qtshapes {
         friend constexpr inline const ZQPointF operator-(const ZQPointF &);
         friend constexpr inline const ZQPointF operator/(const ZQPointF &, qreal);
 
-        constexpr QString toString() const noexcept;
+        QString toString() const noexcept;
         constexpr ZQPoint toPoint() const noexcept;
-        constexpr QPointF toQPointF() const noexcept;
+        constexpr QPointF toQPoint() const noexcept;
 
 
     private:
@@ -295,38 +293,38 @@ namespace z_qtshapes {
       ZQPointF inline functions
      *****************************************************************************/
 
-    constexpr inline ZQPointF::ZQPointF() : xp(0), yp(0) { }
+    constexpr inline ZQPointF::ZQPointF() noexcept : xp(0), yp(0) { }
 
-    constexpr inline ZQPointF::ZQPointF(qreal xpos, qreal ypos) : xp(xpos), yp(ypos) { }
+    constexpr inline ZQPointF::ZQPointF(qreal xpos, qreal ypos) noexcept : xp(xpos), yp(ypos) { }
 
-    constexpr inline ZQPointF::ZQPointF(const ZQPoint &p) : xp(p.x()), yp(p.y()) { }
+    constexpr inline ZQPointF::ZQPointF(const ZQPoint &p) noexcept : xp(p.x()), yp(p.y()) { }
 
-    constexpr inline qreal ZQPointF::manhattanLength() const
+    constexpr inline qreal ZQPointF::manhattanLength() const noexcept
     {
         return qAbs(x())+qAbs(y());
     }
 
-    inline bool ZQPointF::isNull() const
+    inline bool ZQPointF::isNull() const noexcept
     {
         return qIsNull(xp) && qIsNull(yp);
     }
 
-    constexpr inline qreal ZQPointF::x() const
+    constexpr inline qreal ZQPointF::x() const noexcept
     {
         return xp;
     }
 
-    constexpr inline qreal ZQPointF::y() const
+    constexpr inline qreal ZQPointF::y() const noexcept
     {
         return yp;
     }
 
-    inline void ZQPointF::setX(qreal xpos)
+    inline void ZQPointF::setX(qreal xpos) noexcept
     {
         xp = xpos;
     }
 
-    inline void ZQPointF::setY(qreal ypos)
+    inline void ZQPointF::setY(qreal ypos) noexcept
     {
         yp = ypos;
     }
@@ -365,8 +363,7 @@ namespace z_qtshapes {
     constexpr inline bool operator==(const ZQPointF &p1, const ZQPointF &p2)
     {
         return ((!p1.xp || !p2.xp) ? qFuzzyIsNull(p1.xp - p2.xp) : qFuzzyCompare(p1.xp, p2.xp))
-            && ((!p1.yp || !p2.yp) ? qFuzzyIsNull(p1.yp - p2.yp) : qFuzzyCompare(p1.yp, p2.yp))
-            && p1.a == p2.a;
+            && ((!p1.yp || !p2.yp) ? qFuzzyIsNull(p1.yp - p2.yp) : qFuzzyCompare(p1.yp, p2.yp));
     }
 
     constexpr inline bool operator!=(const ZQPointF &p1, const ZQPointF &p2)
@@ -376,12 +373,12 @@ namespace z_qtshapes {
 
     //QT_WARNING_POP
 
-    constexpr inline QString toString() const noexcept
+    inline QString ZQPointF::toString() const noexcept
     {
-        return QString("ZQPointF(%1,%2)").arg(x1, y1));
+        return QString("ZQPointF(%1,%2)").arg(QString::number(xp), QString::number(yp));
     }
     
-    constexpr inline QPoint toQPointF() const noexcept
+    constexpr inline QPointF ZQPointF::toQPoint() const noexcept
     {
         return QPointF(xp, yp);
     }
@@ -428,7 +425,7 @@ namespace z_qtshapes {
         return ZQPointF(p.xp/divisor, p.yp/divisor);
     }
 
-    constexpr inline ZQPoint ZQPointF::toPoint() const
+    constexpr inline ZQPoint ZQPointF::toPoint() const noexcept
     {
         return ZQPoint(qRound(xp), qRound(yp));
     }

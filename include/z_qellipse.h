@@ -53,17 +53,15 @@ namespace z_qtshapes {
 
     /*
      * It has been found that an ellipse can be made from the same dimension parameters
-     * as rectangles. They can be fully described by coordinates of a rectangle.
+     * as Ellipseangles. They can be fully described by coordinates of a Ellipseangle.
      */
     class ZQEllipse {
     public:
-        constexpr ZQEllipse() noexcept : x1(0), y1(0), x2(-1), y2(-1), a(0) {}
-        constexpr ZQEllipse(const ZQEllipse &topleft, const ZQEllipse &bottomright) noexcept;
-        constexpr ZQEllipse(const ZQEllipse &topleft, const ZQEllipse &bottomright, int angle) noexcept;
-        constexpr ZQEllipse(const ZQEllipse &topleft, const ZQEllipse &size) noexcept;
-        constexpr ZQEllipse(const ZQEllipse &topleft, const ZQEllipse &size, int angle) noexcept;
-        constexpr ZQEllipse(int left, int top, int width, int height) noexcept;
-        constexpr ZQEllipse(int left, int top, int width, int height, int angle) noexcept;
+        constexpr inline ZQEllipse() noexcept : x1(0), y1(0), x2(-1), y2(-1), a(0) {};
+        constexpr inline ZQEllipse(const QPoint &topleft, const QPoint &size) noexcept;
+        inline ZQEllipse(const QPoint &topleft, const QPoint &size, int angle) noexcept;
+        constexpr inline ZQEllipse(int left, int top, int width, int height) noexcept;
+        inline ZQEllipse(int left, int top, int width, int height, int angle) noexcept;
 
         constexpr inline bool isNull() const noexcept;
         constexpr inline bool isEmpty() const noexcept;
@@ -73,7 +71,7 @@ namespace z_qtshapes {
         constexpr inline int top() const noexcept;
         constexpr inline int right() const noexcept;
         constexpr inline int bottom() const noexcept;
-        void normalize() const noexcept;
+        void normalize() noexcept;
         ZQEllipse normalized() const noexcept;
 
         constexpr inline int x() const noexcept;
@@ -89,10 +87,10 @@ namespace z_qtshapes {
         inline void setAngle(int a) noexcept;
         inline void setAngleRadians(qreal a) noexcept;
 
-        inline void setTopLeft(const QPointF &p) noexcept;
-        inline void setBottomRight(const QPointF &p) noexcept;
-        inline void setTopRight(const QPointF &p) noexcept;
-        inline void setBottomLeft(const QPointF &p) noexcept;
+        inline void setTopLeft(const QPoint &p) noexcept;
+        inline void setBottomRight(const QPoint &p) noexcept;
+        inline void setTopRight(const QPoint &p) noexcept;
+        inline void setBottomLeft(const QPoint &p) noexcept;
 
         constexpr inline QPoint topLeft() const noexcept;
         constexpr inline QPoint bottomRight() const noexcept;
@@ -100,10 +98,10 @@ namespace z_qtshapes {
         constexpr inline QPoint bottomLeft() const noexcept;
         constexpr inline QPoint center() const noexcept;
 
-        inline void moveLeft(qreal pos) noexcept;
-        inline void moveTop(qreal pos) noexcept;
-        inline void moveRight(qreal pos) noexcept;
-        inline void moveBottom(qreal pos) noexcept;
+        inline void moveLeft(int pos) noexcept;
+        inline void moveTop(int pos) noexcept;
+        inline void moveRight(int pos) noexcept;
+        inline void moveBottom(int pos) noexcept;
         inline void moveTopLeft(const QPoint &p) noexcept;
         inline void moveBottomRight(const QPoint &p) noexcept;
         inline void moveTopRight(const QPoint &p) noexcept;
@@ -111,40 +109,68 @@ namespace z_qtshapes {
         inline void moveCenter(const QPoint &p) noexcept;
 
         inline void translate(int dx, int dy) noexcept;
+        inline void translate(int dx, int dy, int a_) noexcept;
+        inline void translateRadians(int dx, int dy, qreal a_) noexcept;
         inline void translate(const QPoint &p) noexcept;
-        constexpr inline ZQEllipse translated(int dx, int dy) const noexcept;
-        constexpr inline ZQEllipse translated(const QPoint &p) const noexcept;
-        constexpr inline ZQEllipse transposed() const noexcept;
+        inline void translate(const QPoint &p, int a_) noexcept;
+        inline void translateRadians(const QPoint &p, qreal a_) noexcept;
+
+        inline ZQEllipse translated(int dx, int dy) const noexcept;
+        inline ZQEllipse translated(int dx, int dy, int a_) const noexcept;
+        inline ZQEllipse translatedRadians(int dx, int dy, qreal a_) const noexcept;
+        inline ZQEllipse translated(const QPoint &p) const noexcept;
+        inline ZQEllipse translated(const QPoint &p, int a_) const noexcept;
+        inline ZQEllipse translatedRadians(const QPoint &p, qreal a_) const noexcept;
+        
+        inline ZQEllipse transposed() const noexcept;
 
         inline void rotate(int da) noexcept;
         inline void rotateRadians(qreal da) noexcept;
-        constexpr inline ZQEllipse rotated(int da) noexcept;
-        constexpr inline ZQEllipse rotatedRadians(qreal da) noexcept;
+        inline ZQEllipse rotated(int da) const noexcept;
+        inline ZQEllipse rotatedRadians(qreal da) const noexcept;
 
-        inline int normalizedAngle(int a) noexcept;
 
         inline void moveTo(int x, int t) noexcept;
         inline void moveTo(const QPoint &p) noexcept;
 
-        inline void getEllipse(int x, int y, int w, int h) noexcept;
+        inline void setEllipse(int x, int y, int w, int h) noexcept;
+        inline void setEllipse(int x, int y, int w, int h, int aa) noexcept;
+        inline void setEllipseRadians(int x, int y, int w, int h, qreal aa) noexcept;
         inline void getEllipse(int *x, int *y, int *w, int *h) const;
+        inline void getEllipse(int *x, int *y, int *w, int *h, int *aa) const;
+        inline void getEllipseRadians(int *x, int *y, int *w, int *h, qreal *aa) const;
 
         inline void setCoords(int x1, int y1, int x2, int y2) noexcept;
         inline void setCoords(int xp1, int yp1, int xp2, int yp2, int angle) noexcept;
-        inline void getCoords(int *x1, int *y1, int *x2, qreal *y2) const;
+        inline void setCoordsRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) noexcept;
+        inline void setCoords(const QPoint &p1, const QPoint &p2) noexcept {return setCoords(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline void setCoords(const QPoint &p1, const QPoint &p2, int a_) noexcept {return setCoords(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline void setCoordsRadians(const QPoint &p1, const QPoint &p2, qreal a_) noexcept {return setCoordsRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline void getCoords(int *x1, int *y1, int *x2, int *y2) const;
         inline void getCoords(int *xp1, int *yp1, int *xp2, int *yp2, int *angle) const;
         inline void getCoordsRadians(int *xp1, int *yp1, int *xp2, int *yp2, qreal *angle) const;
 
         inline void adjust(int x1, int y1, int x2, int y2) noexcept;
         inline void adjust(int dx1, int dy1, int dx2, int dy2, int angle) noexcept;
         inline void adjustRadians(int dx1, int dy1, int dx2, int dy2, qreal angle) noexcept;
-        constexpr inline ZQEllipse adjusted(int x1, int y1, int x2, int y2) const noexcept;
-        constexpr inline ZQEllipse adjusted(int xp1, int yp1, int xp2, int yp2, int angle) const noexcept;
-        constexpr inline ZQEllipse adjustedRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) const noexcept;
+        inline ZQEllipse adjusted(int x1, int y1, int x2, int y2) const noexcept;
+        inline ZQEllipse adjusted(int xp1, int yp1, int xp2, int yp2, int angle) const noexcept;
+        inline ZQEllipse adjustedRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) const noexcept;
+        inline void adjust(const QPoint &p1, const QPoint &p2) noexcept {return adjust(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline void adjust(const QPoint &p1, const QPoint &p2, int a_) noexcept {return adjust(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline void adjustRadians(const QPoint &p1, const QPoint &p2, qreal a_) noexcept {return adjustRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline ZQEllipse adjusted(const QPoint &p1, const QPoint &p2) noexcept {return adjusted(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline ZQEllipse adjusted(const QPoint &p1, const QPoint &p2, int a_) noexcept {return adjusted(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline ZQEllipse adjustedRadians(const QPoint &p1, const QPoint &p2, qreal a_) noexcept {return adjustedRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+
 
         constexpr inline QSize size() const noexcept;
         constexpr inline int width() const noexcept;
         constexpr inline int height() const noexcept;
+        constexpr inline int px1() const noexcept {return x(); };
+        constexpr inline int py1() const noexcept {return y(); };
+        constexpr inline int px2() const noexcept {return x() + width(); };
+        constexpr inline int py2() const noexcept {return y() + height(); };
         inline void setWidth(int w) noexcept;
         inline void setHeight(int h) noexcept;
         inline void setSize(const QSize &s) noexcept;
@@ -152,25 +178,21 @@ namespace z_qtshapes {
         QPainterPath operator|(const ZQEllipse &r) const noexcept;
         QPainterPath operator&(const ZQEllipse &r) const noexcept;
 
-        bool contains(const ZQEllipse &r, bool proper = false) const noexcept;
-        bool contains(const QPoint &p, bool proper=false) const noexcept;
+        bool contains(const ZQEllipse &r, bool proper=false) const noexcept;
+        bool contains(const QPoint &p) const noexcept;
         inline bool contains(int x, int y) const noexcept;
-        inline bool contains(int x, int y, bool proper) const noexcept;
         inline QPainterPath united(const ZQEllipse &other) const noexcept;
         inline QPainterPath intersected(const ZQEllipse &other) const noexcept;
         bool intersects(const ZQEllipse &r) const noexcept;
 
-        constexpr inline ZQEllipse marginsAdded(const QMargins &margins) const noexcept;
-        constexpr inline ZQEllipse marginsRemoved(const QMargins &margins) const noexcept;
+        inline ZQEllipse marginsAdded(const QMargins &margins) const noexcept;
+        inline ZQEllipse marginsRemoved(const QMargins &margins) const noexcept;
         inline ZQEllipse &operator+=(const QMargins &margins) noexcept;
         inline ZQEllipse &operator-=(const QMargins &margins) noexcept;
 
-        constexpr inline ZQEllipse toEllipse() const noexcept;
-        ZQEllipse toAlignedEllipse() const noexcept;
-
-        constexpr QPainterPath toPath() const noexcept;
-        constexpr QPainterPath toPath(const QMatrix3x3 mat, const QPointF &ref) const noexcept;
-        constexpr inline QString toString() const noexcept;
+        QPainterPath toPath() const noexcept;
+        QPainterPath toPath(const QMatrix3x3 &mat, const QPointF &ref) const noexcept;
+        QString toString() const noexcept;
 
         friend constexpr inline bool operator==(const ZQEllipse &, const ZQEllipse &) noexcept;
         friend constexpr inline bool operator!=(const ZQEllipse &, const ZQEllipse &) noexcept;
@@ -203,20 +225,20 @@ namespace z_qtshapes {
     constexpr inline ZQEllipse::ZQEllipse(int aleft, int atop, int awidth, int aheight) noexcept
         : x1(aleft), y1(atop), x2(aleft + awidth - 1), y2(atop + aheight - 1), a(0) {}
 
-    constexpr inline ZQEllipse::ZQEllipse(int aleft, int atop, int awidth, int aheight, int angle) noexcept
-        : x1(aleft), y1(atop), x2(aleft + awidth - 1), y2(atop + aheight - 1), a(normalizedAngle(angle)) {}
+    inline ZQEllipse::ZQEllipse(int aleft, int atop, int awidth, int aheight, int a_) noexcept
+        : x1(aleft), y1(atop), x2(aleft + awidth - 1), y2(atop + aheight - 1)
+    {
+        a = normalizedAngle(a_);
+    }
 
-    constexpr inline ZQEllipse::ZQEllipse(const QPoint &atopLeft, const QPoint &abottomRight) noexcept
-        : x1(atopLeft.x()), y1(atopLeft.y()), x2(abottomRight.x()), y2(abottomRight.y()), a(0) {}
+    constexpr inline ZQEllipse::ZQEllipse(const QPoint &atopLeft, const QPoint &asize) noexcept
+        : x1(atopLeft.x()), y1(atopLeft.y()), x2(atopLeft.x()+asize.x() - 1), y2(atopLeft.y()+asize.y() - 1), a(0) {}
 
-    constexpr inline ZQEllipse::ZQEllipse(const QPoint &atopLeft, const QPoint &abottomRight, int angle) noexcept
-        : x1(atopLeft.x()), y1(atopLeft.y()), x2(abottomRight.x()), y2(abottomRight.y()), a(normalizedAngle(angle)) {}
-
-    constexpr inline ZQEllipse::ZQEllipse(const QPoint &atopLeft, const QSize &asize) noexcept
-        : x1(atopLeft.x()), y1(atopLeft.y()), x2(atopLeft.x()+asize.width() - 1), y2(atopLeft.y()+asize.height() - 1) {}
-
-    constexpr inline ZQEllipse::ZQEllipse(const QPoint &atopLeft, const QSize &asize, int angle) noexcept
-        : x1(atopLeft.x()), y1(atopLeft.y()), x2(atopLeft.x()+asize.width() - 1), y2(atopLeft.y()+asize.height() - 1), a(normalizedAngle(angle)) {}
+    inline ZQEllipse::ZQEllipse(const QPoint &atopLeft, const QPoint &asize, int a_) noexcept
+        : x1(atopLeft.x()), y1(atopLeft.y()), x2(atopLeft.x()+asize.x() - 1), y2(atopLeft.y()+asize.y() - 1)
+    {
+        a = normalizedAngle(a_);
+    }
 
     constexpr inline bool ZQEllipse::isNull() const noexcept
     { return x2 == x1 - 1 && y2 == y1 - 1 && a == 0; }
@@ -246,10 +268,10 @@ namespace z_qtshapes {
     { return y1; }
 
     constexpr inline int ZQEllipse::angle() const noexcept
-    { return angle; }
+    { return a; }
 
     constexpr inline qreal ZQEllipse::angleRadians() const noexcept
-    { return M_PI/180 * angle; }
+    { return M_PI/180 * a; }
 
     inline void ZQEllipse::setLeft(int pos) noexcept
     { x1 = pos; }
@@ -310,13 +332,30 @@ namespace z_qtshapes {
 
     constexpr inline QSize ZQEllipse::size() const noexcept
     { return QSize(width(), height()); }
-
     inline void ZQEllipse::translate(int dx, int dy) noexcept
     {
         x1 += dx;
         y1 += dy;
         x2 += dx;
         y2 += dy;
+    }
+
+    inline void ZQEllipse::translate(int dx, int dy, int a_) noexcept
+    {
+        x1 += dx;
+        y1 += dy;
+        x2 += dx;
+        y2 += dy;
+        a = normalizedAngle(a + a_);
+    }
+
+    inline void ZQEllipse::translateRadians(int dx, int dy, qreal a_) noexcept
+    {
+        x1 += dx;
+        y1 += dy;
+        x2 += dx;
+        y2 += dy;
+        a = normalizedAngle(a + (int) (180/M_PI * a_));
     }
 
     inline void ZQEllipse::translate(const QPoint &p) noexcept
@@ -327,36 +366,57 @@ namespace z_qtshapes {
         y2 += p.y();
     }
 
-    constexpr inline ZQEllipse ZQEllipse::translated(int dx, int dy) const noexcept
-    { return ZQEllipse(QPoint(x1 + dx, y1 + dy), QPoint(x2 + dx, y2 + dy)); }
-
-    constexpr inline ZQEllipse ZQEllipse::translated(const QPoint &p) const noexcept
-    { return ZQEllipse(QPoint(x1 + p.x(), y1 + p.y()), QPoint(x2 + p.x(), y2 + p.y())); }
-
-    constexpr inline ZQEllipse ZQEllipse::transposed() const noexcept
-    { return ZQEllipse(topLeft(), size().transposed()); }
-
-    inline void ZQEllipse::rotate(int angle) const noexcept
-    { a += normalizedAngle(angle); }
-
-    inline void ZQEllipse::rotateRadians(qreal angle) const noexcept
-    { a += (int) (180/M_PI * normalizedAngle(angle)); }
-
-    constexpr inline ZQEllipse ZQEllipse::rotate(int angle) const noexcept
-    { return ZQEllipse(x1, y1, x2, y2, a + normalizedAngle(angle)); }
-
-    constexpr inline ZQEllipse ZQEllipse::rotateRadians(qreal angle) const noexcept
-    { return ZQEllipse(x1, y1, x2, y2, a + (int) (180/M_PI * normalizedAngle(angle))); }
-
-
-    inline int ZQEllipse::normalizedAngle(int a) noexcept
+    inline void ZQEllipse::translate(const QPoint &p, int a_) noexcept
     {
-        while (a < 0)
-            a += 360 * MAX_ROTATIONS;
-        while (angle >= 360 * MAX_ROTATIONS)
-            a -= 360 * MAX_ROTATIONS;
-        return a;
+        x1 += p.x();
+        y1 += p.y();
+        x2 += p.x();
+        y2 += p.y();
+        a = normalizedAngle(a + a_);
     }
+
+    inline void ZQEllipse::translateRadians(const QPoint &p, qreal a_) noexcept
+    {
+        x1 += p.x();
+        y1 += p.y();
+        x2 += p.x();
+        y2 += p.y();
+        a = normalizedAngle(a + (int) (180/M_PI * a_));
+    }
+
+    inline ZQEllipse ZQEllipse::translated(int dx, int dy) const noexcept
+    { return ZQEllipse(QPoint(x1 + dx, y1 + dy), QPoint(x2 + dx, y2 + dy), a); }
+
+    inline ZQEllipse ZQEllipse::translated(int dx, int dy, int a_) const noexcept
+    { return ZQEllipse(QPoint(x1 + dx, y1 + dy), QPoint(x2 + dx, y2 + dy), normalizedAngle(a + a_)); }
+
+    inline ZQEllipse ZQEllipse::translatedRadians(int dx, int dy, qreal a_) const noexcept
+    { return ZQEllipse(QPoint(x1 + dx, y1 + dy), QPoint(x2 + dx, y2 + dy), normalizedAngle(a + (int) (180/M_PI * a_))); }
+
+    inline ZQEllipse ZQEllipse::translated(const QPoint &p) const noexcept
+    { return ZQEllipse(QPoint(x1 + p.x(), y1 + p.y()), QPoint(x2 + p.x(), y2 + p.y()), a); }
+
+    inline ZQEllipse ZQEllipse::translated(const QPoint &p, int a_) const noexcept
+    { return ZQEllipse(QPoint(x1 + p.x(), y1 + p.y()), QPoint(x2 + p.x(), y2 + p.y()), normalizedAngle(a + a_)); }
+
+    inline ZQEllipse ZQEllipse::translatedRadians(const QPoint &p, qreal a_) const noexcept
+    { return ZQEllipse(QPoint(x1 + p.x(), y1 + p.y()), QPoint(x2 + p.x(), y2 + p.y()), normalizedAngle(a + (int) (180/M_PI * a_))); }
+
+
+    inline ZQEllipse ZQEllipse::transposed() const noexcept
+    { return ZQEllipse(topLeft(), QPoint(bottomRight().y(), bottomRight().x()), a); }
+
+    inline void ZQEllipse::rotate(int a_) noexcept
+    { a = normalizedAngle(a + a_); }
+
+    inline void ZQEllipse::rotateRadians(qreal a_) noexcept
+    { a = normalizedAngle(a + (int) (180/M_PI * a_)); }
+
+    inline ZQEllipse ZQEllipse::rotated(int a_) const noexcept
+    { return ZQEllipse(x1, y1, x2, y2, a + normalizedAngle(a_)); }
+
+    inline ZQEllipse ZQEllipse::rotatedRadians(qreal a_) const noexcept
+    { return ZQEllipse(x1, y1, x2, y2, a + normalizedAngle((int) (180/M_PI * a_))); }
 
     inline void ZQEllipse::moveTo(int ax, int ay) noexcept
     {
@@ -426,12 +486,31 @@ namespace z_qtshapes {
         y2 = y1 + h;
     }
 
+
     inline void ZQEllipse::getEllipse(int *ax, int *ay, int *aw, int *ah) const
     {
         *ax = x1;
         *ay = y1;
         *aw = x2 - x1 + 1;
         *ah = y2 - y1 + 1;
+    }
+
+    inline void ZQEllipse::getEllipse(int *ax, int *ay, int *aw, int *ah, int *aa) const
+    {
+        *ax = x1;
+        *ay = y1;
+        *aw = x2 - x1 + 1;
+        *ah = y2 - y1 + 1;
+        *aa = a;
+    }
+
+    inline void ZQEllipse::getEllipseRadians(int *ax, int *ay, int *aw, int *ah, qreal *aa) const
+    {
+        *ax = x1;
+        *ay = y1;
+        *aw = x2 - x1 + 1;
+        *ah = y2 - y1 + 1;
+        *aa = M_PI/180 * a;
     }
 
     inline void ZQEllipse::setEllipse(int ax, int ay, int aw, int ah) noexcept
@@ -442,6 +521,24 @@ namespace z_qtshapes {
         y2 = (ay + ah - 1);
     }
 
+    inline void ZQEllipse::setEllipse(int ax, int ay, int aw, int ah, int aa) noexcept
+    {
+        x1 = ax;
+        y1 = ay;
+        x2 = (ax + aw - 1);
+        y2 = (ay + ah - 1);
+        a = normalizedAngle(aa);
+    }
+
+    inline void ZQEllipse::setEllipseRadians(int ax, int ay, int aw, int ah, qreal aa) noexcept
+    {
+        x1 = ax;
+        y1 = ay;
+        x2 = (ax + aw - 1);
+        y2 = (ay + ah - 1);
+        a = normalizedAngle((int) (180/M_PI * aa));
+    }
+
     inline void ZQEllipse::getCoords(int *xp1, int *yp1, int *xp2, int *yp2) const
     {
         *xp1 = x1;
@@ -450,22 +547,22 @@ namespace z_qtshapes {
         *yp2 = y2;
     }
 
-    inline void ZQEllipse::getCoords(int *xp1, int *yp1, int *xp2, int *yp2, int *angle) const
+    inline void ZQEllipse::getCoords(int *xp1, int *yp1, int *xp2, int *yp2, int *a_) const
     {
         *xp1 = x1;
         *yp1 = y1;
         *xp2 = x2;
         *yp2 = y2;
-        *angle = a;
+        *a_ = a;
     }
 
-    inline void ZQEllipse::getCoordsRadians(int *xp1, int *yp1, int *xp2, int *yp2, qreal *angle) const
+    inline void ZQEllipse::getCoordsRadians(int *xp1, int *yp1, int *xp2, int *yp2, qreal *a_) const
     {
         *xp1 = x1;
         *yp1 = y1;
         *xp2 = x2;
         *yp2 = y2;
-        *angle = M_PI/180 * a;
+        *a_ = M_PI/180 * a;
     }
 
     inline void ZQEllipse::setCoords(int xp1, int yp1, int xp2, int yp2) noexcept
@@ -476,32 +573,32 @@ namespace z_qtshapes {
         y2 = yp2;
     }
 
-    inline void ZQEllipse::setCoords(int xp1, int yp1, int xp2, int yp2, int angle) noexcept
+    inline void ZQEllipse::setCoords(int xp1, int yp1, int xp2, int yp2, int a_) noexcept
     {
         x1 = xp1;
         y1 = yp1;
         x2 = xp2;
         y2 = yp2;
-        a = angle;
+        a = normalizedAngle(a_);
     }
 
-    inline void ZQEllipse::setCoordsRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) noexcept
+    inline void ZQEllipse::setCoordsRadians(int xp1, int yp1, int xp2, int yp2, qreal a_) noexcept
     {
         x1 = xp1;
         y1 = yp1;
         x2 = xp2;
         y2 = yp2;
-        a = normalizedAngle((int) (180/M_PI * angle));
+        a = normalizedAngle((int) (180/M_PI * a_));
     }
 
 
-    constexpr inline ZQEllipse ZQEllipse::adjusted(int xp1, int yp1, int xp2, int yp2) const noexcept
+    inline ZQEllipse ZQEllipse::adjusted(int xp1, int yp1, int xp2, int yp2) const noexcept
     { return ZQEllipse(QPoint(x1 + xp1, y1 + yp1), QPoint(x2 + xp2, y2 + yp2)); }
 
-    constexpr inline ZQEllipse ZQEllipse::adjusted(int xp1, int yp1, int xp2, int yp2, int angle) const noexcept
-    { return ZQEllipse(QPoint(x1 + xp1, y1 + yp1), QPoint(x2 + xp2, y2 + yp2), normalizedAngle(angle)); }
+    inline ZQEllipse ZQEllipse::adjusted(int xp1, int yp1, int xp2, int yp2, int angle) const noexcept
+    { return ZQEllipse(QPoint(x1 + xp1, y1 + yp1), QPoint(x2 + xp2, y2 + yp2), angle); }
 
-    constexpr inline ZQEllipse ZQEllipse::adjustedRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) const noexcept
+    inline ZQEllipse ZQEllipse::adjustedRadians(int xp1, int yp1, int xp2, int yp2, qreal angle) const noexcept
     { return ZQEllipse(QPoint(x1 + xp1, y1 + yp1), QPoint(x2 + xp2, y2 + yp2), normalizedAngle((int) (180/M_PI * angle))); }
 
 
@@ -543,19 +640,9 @@ namespace z_qtshapes {
         y2 = (s.height() + y1 - 1);
     }
 
-    inline bool ZQEllipse::contains(int ax, int ay, bool aproper) const noexcept
-    {
-        return contains(QPoint(ax, ay), aproper);
-    }
-
     inline bool ZQEllipse::contains(int ax, int ay) const noexcept
     {
-        return contains(QPoint(ax, ay), false);
-    }
-
-    constexpr inline QString toString() const noexcept
-    {
-        return QString("ZQEllipse(%1,%2 size %3x%4 %5 degrees)").arg(x1, y1, width(), height(), a));
+        return contains(QPoint(ax, ay));
     }
 
     inline QPainterPath ZQEllipse::intersected(const ZQEllipse &other) const noexcept
@@ -579,34 +666,34 @@ namespace z_qtshapes {
         return r1.x1!=r2.x1 || r1.x2!=r2.x2 || r1.y1!=r2.y1 || r1.y2!=r2.y2;
     }
 
-    constexpr inline ZQEllipse operator+(const ZQEllipse &rectangle, const QMargins &margins) noexcept
+    inline ZQEllipse operator+(const ZQEllipse &Ellipseangle, const QMargins &margins) noexcept
     {
-        return ZQEllipse(QPoint(rectangle.left() - margins.left(), rectangle.top() - margins.top()),
-                     QPoint(rectangle.right() + margins.right(), rectangle.bottom() + margins.bottom()));
+        return ZQEllipse(QPoint(Ellipseangle.left() - margins.left(), Ellipseangle.top() - margins.top()),
+                     QPoint(Ellipseangle.right() + margins.right(), Ellipseangle.bottom() + margins.bottom()), Ellipseangle.angle());
     }
 
-    constexpr inline ZQEllipse operator+(const QMargins &margins, const ZQEllipse &rectangle) noexcept
+    inline ZQEllipse operator+(const QMargins &margins, const ZQEllipse &Ellipseangle) noexcept
     {
-        return ZQEllipse(QPoint(rectangle.left() - margins.left(), rectangle.top() - margins.top()),
-                     QPoint(rectangle.right() + margins.right(), rectangle.bottom() + margins.bottom()));
+        return ZQEllipse(QPoint(Ellipseangle.left() - margins.left(), Ellipseangle.top() - margins.top()),
+                     QPoint(Ellipseangle.right() + margins.right(), Ellipseangle.bottom() + margins.bottom()), Ellipseangle.angle());
     }
 
-    constexpr inline ZQEllipse operator-(const ZQEllipse &lhs, const QMargins &rhs) noexcept
+    inline ZQEllipse operator-(const ZQEllipse &lhs, const QMargins &rhs) noexcept
     {
         return ZQEllipse(QPoint(lhs.left() + rhs.left(), lhs.top() + rhs.top()),
-                     QPoint(lhs.right() - rhs.right(), lhs.bottom() - rhs.bottom()));
+                     QPoint(lhs.right() - rhs.right(), lhs.bottom() - rhs.bottom()), lhs.angle());
     }
 
-    constexpr inline ZQEllipse ZQEllipse::marginsAdded(const QMargins &margins) const noexcept
+    inline ZQEllipse ZQEllipse::marginsAdded(const QMargins &margins) const noexcept
     {
         return ZQEllipse(QPoint(x1 - margins.left(), y1 - margins.top()),
-                     QPoint(x2 + margins.right(), y2 + margins.bottom()));
+                     QPoint(x2 + margins.right(), y2 + margins.bottom()), a);
     }
 
-    constexpr inline ZQEllipse ZQEllipse::marginsRemoved(const QMargins &margins) const noexcept
+    inline ZQEllipse ZQEllipse::marginsRemoved(const QMargins &margins) const noexcept
     {
         return ZQEllipse(QPoint(x1 + margins.left(), y1 + margins.top()),
-                     QPoint(x2 - margins.right(), y2 - margins.bottom()));
+                     QPoint(x2 - margins.right(), y2 - margins.bottom()), a);
     }
 
     inline ZQEllipse &ZQEllipse::operator+=(const QMargins &margins) noexcept
@@ -630,19 +717,17 @@ namespace z_qtshapes {
 
     class ZQEllipseF {
     public:
-        constexpr ZQEllipseF() noexcept : xp(0.), yp(0.), w(0.), h(0.) a(0.) {}
-        constexpr ZQEllipseF(const QPointF &topleft, const QSizeF &size) noexcept;
-        constexpr ZQEllipseF(const QPointF &topleft, const QSizeF &size, qreal angle) noexcept;
-        constexpr ZQEllipseF(const QPointF &topleft, const QPointF &bottomRight) noexcept;
-        constexpr ZQEllipseF(const QPointF &topleft, const QPointF &bottomRight, qreal angle) noexcept;
+        constexpr ZQEllipseF() noexcept : xp(0.), yp(0.), w(0.), h(0.), a(0.) {}
+        constexpr ZQEllipseF(const QPointF &topleft, const QPointF &size) noexcept;
+        ZQEllipseF(const QPointF &topleft, const QPointF &size, qreal angle) noexcept;
         constexpr ZQEllipseF(qreal left, qreal top, qreal width, qreal height) noexcept;
-        constexpr ZQEllipseF(qreal left, qreal top, qreal width, qreal height, qreal angle) noexcept;
-        constexpr ZQEllipseF(const ZQEllipse &rect) noexcept;
+        ZQEllipseF(qreal left, qreal top, qreal width, qreal height, qreal angle) noexcept;
+        constexpr ZQEllipseF(const ZQEllipse &Ellipse) noexcept;
 
         constexpr inline bool isNull() const noexcept;
         constexpr inline bool isEmpty() const noexcept;
         constexpr inline bool isValid() const noexcept;
-        void normalize() const noexcept;
+        void normalize() noexcept;
         ZQEllipseF normalized() const noexcept;
 
         constexpr inline qreal left() const noexcept { return xp; }
@@ -685,30 +770,43 @@ namespace z_qtshapes {
         inline void moveCenter(const QPointF &p) noexcept;
 
         inline void translate(qreal dx, qreal dy) noexcept;
+        inline void translate(qreal dx, qreal dy, qreal a_) noexcept;
+        inline void translateRadians(qreal dx, qreal dy, qreal a_) noexcept;
         inline void translate(const QPointF &p) noexcept;
+        inline void translate(const QPointF &p, qreal a_) noexcept;
+        inline void translateRadians(const QPointF &p, qreal a_) noexcept;
 
-        constexpr inline ZQEllipseF translated(qreal dx, qreal dy) const noexcept;
-        constexpr inline ZQEllipseF translated(const QPointF &p) const noexcept;
+        inline ZQEllipseF translated(qreal dx, qreal dy) const noexcept;
+        inline ZQEllipseF translated(qreal dx, qreal dy, qreal a_) const noexcept;
+        inline ZQEllipseF translatedRadians(qreal dx, qreal dy, qreal a_) const noexcept;
+        inline ZQEllipseF translated(const QPointF &p) const noexcept;
+        inline ZQEllipseF translated(const QPointF &p, qreal a_) const noexcept;
+        inline ZQEllipseF translatedRadians(const QPointF &p, qreal a_) const noexcept;
 
-        constexpr inline ZQEllipseF transposed() const noexcept;
+        inline ZQEllipseF transposed() const noexcept;
 
 
         inline void rotate(qreal da) noexcept;
         inline void rotateRadians(qreal da) noexcept;
-        constexpr inline ZQEllipseF rotated(qreal da) noexcept;
-        constexpr inline ZQEllipseF rotatedRadians(qreal da) noexcept;
-
-        inline qreal normalizedAngle(qreal a) noexcept;
+        inline ZQEllipseF rotated(qreal da) const noexcept;
+        inline ZQEllipseF rotatedRadians(qreal da) const noexcept;
 
         inline void moveTo(qreal x, qreal y) noexcept;
         inline void moveTo(const QPointF &p) noexcept;
 
         inline void setEllipse(qreal x, qreal y, qreal w, qreal h) noexcept;
+        inline void setEllipse(qreal x, qreal y, qreal w, qreal h, qreal a) noexcept;
+        inline void setEllipseRadians(qreal x, qreal y, qreal w, qreal h, qreal a) noexcept;
         inline void getEllipse(qreal *x, qreal *y, qreal *w, qreal *h) const;
+        inline void getEllipse(qreal *x, qreal *y, qreal *w, qreal *h, qreal *a) const;
+        inline void getEllipseRadians(qreal *x, qreal *y, qreal *w, qreal *h, qreal *a) const;
 
         inline void setCoords(qreal x1, qreal y1, qreal x2, qreal y2) noexcept;
         inline void setCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept;
         inline void setCoordsRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept;
+        inline void setCoords(const QPointF &p1, const QPointF &p2) noexcept {return setCoords(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline void setCoords(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return setCoords(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline void setCoordsRadians(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return setCoordsRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
         inline void getCoords(qreal *x1, qreal *y1, qreal *x2, qreal *y2) const;
         inline void getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *angle) const;
         inline void getCoordsRadians(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *angle) const;
@@ -716,13 +814,23 @@ namespace z_qtshapes {
         inline void adjust(qreal x1, qreal y1, qreal x2, qreal y2) noexcept;
         inline void adjust(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept;
         inline void adjustRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept;
-        constexpr inline ZQEllipseF adjusted(qreal x1, qreal y1, qreal x2, qreal y2) const noexcept;
-        constexpr inline ZQEllipseF adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept;
-        constexpr inline ZQEllipseF adjustedRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept;
+        inline ZQEllipseF adjusted(qreal x1, qreal y1, qreal x2, qreal y2) const noexcept;
+        inline ZQEllipseF adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept;
+        inline ZQEllipseF adjustedRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept;
+        inline void adjust(const QPointF &p1, const QPointF &p2) noexcept {return adjust(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline void adjust(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return adjust(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline void adjustRadians(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return adjustRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline ZQEllipseF adjusted(const QPointF &p1, const QPointF &p2) noexcept {return adjusted(p1.x(), p1.y(), p2.x(), p2.y()); };
+        inline ZQEllipseF adjusted(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return adjusted(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
+        inline ZQEllipseF adjustedRadians(const QPointF &p1, const QPointF &p2, qreal a_) noexcept {return adjustedRadians(p1.x(), p1.y(), p2.x(), p2.y(), a_); };
 
         constexpr inline QSizeF size() const noexcept;
         constexpr inline qreal width() const noexcept;
         constexpr inline qreal height() const noexcept;
+        constexpr inline qreal px1() const noexcept {return x(); };
+        constexpr inline qreal py1() const noexcept {return y(); };
+        constexpr inline qreal px2() const noexcept {return x() + width(); };
+        constexpr inline qreal py2() const noexcept {return y() + height(); };
         inline void setWidth(qreal w) noexcept;
         inline void setHeight(qreal h) noexcept;
         inline void setSize(const QSizeF &s) noexcept;
@@ -730,21 +838,24 @@ namespace z_qtshapes {
         QPainterPath operator|(const ZQEllipseF &r) const noexcept;
         QPainterPath operator&(const ZQEllipseF &r) const noexcept;
 
-        bool contains(const ZQEllipseF &r) const noexcept;
+        bool contains(const ZQEllipseF &r, bool proper=false) const noexcept;
         bool contains(const QPointF &p) const noexcept;
         inline bool contains(qreal x, qreal y) const noexcept;
         inline QPainterPath united(const ZQEllipseF &other) const noexcept;
         inline QPainterPath intersected(const ZQEllipseF &other) const noexcept;
         bool intersects(const ZQEllipseF &r) const noexcept;
 
-        constexpr inline ZQEllipseF marginsAdded(const QMarginsF &margins) const noexcept;
-        constexpr inline ZQEllipseF marginsRemoved(const QMarginsF &margins) const noexcept;
+        inline ZQEllipseF marginsAdded(const QMarginsF &margins) const noexcept;
+        inline ZQEllipseF marginsRemoved(const QMarginsF &margins) const noexcept;
         inline ZQEllipseF &operator+=(const QMarginsF &margins) noexcept;
         inline ZQEllipseF &operator-=(const QMarginsF &margins) noexcept;
 
-        constexpr QPainterPath toPath() const noexcept;
-        constexpr QPainterPath toPath(const QMatrix3x3 &mat, const QPointF &ref) const noexcept;
-        constexpr inline QString toString() const noexcept;
+        inline ZQEllipse toEllipse() const noexcept;
+        ZQEllipse toAlignedEllipse() const noexcept;
+
+        QPainterPath toPath() const noexcept;
+        QPainterPath toPath(const QMatrix3x3 &mat, const QPointF &ref) const noexcept;
+        QString toString() const noexcept;
 
         friend constexpr inline bool operator==(const ZQEllipseF &, const ZQEllipseF &) noexcept;
         friend constexpr inline bool operator!=(const ZQEllipseF &, const ZQEllipseF &) noexcept;
@@ -776,42 +887,30 @@ namespace z_qtshapes {
      *****************************************************************************/
 
     constexpr inline ZQEllipseF::ZQEllipseF(qreal aleft, qreal atop, qreal awidth, qreal aheight) noexcept
+        : xp(aleft), yp(atop), w(awidth), h(aheight), a(0)
+    {
+    }
+
+    inline ZQEllipseF::ZQEllipseF(qreal aleft, qreal atop, qreal awidth, qreal aheight, qreal angle) noexcept
         : xp(aleft), yp(atop), w(awidth), h(aheight)
     {
+        a = normalizedAngle(angle);
     }
 
-
-    constexpr inline ZQEllipseF::ZQEllipseF(qreal aleft, qreal atop, qreal awidth, qreal aheight, qreal angle) noexcept
-        : xp(aleft), yp(atop), w(awidth), h(aheight), a(normalizedAngle(angle))
+    constexpr inline ZQEllipseF::ZQEllipseF(const QPointF &atopLeft, const QPointF &asize) noexcept
+        : xp(atopLeft.x()), yp(atopLeft.y()), w(asize.x()), h(asize.y()), a(0)
     {
     }
 
-
-    constexpr inline ZQEllipseF::ZQEllipseF(const QPointF &atopLeft, const QSizeF &asize) noexcept
-        : xp(atopLeft.x()), yp(atopLeft.y()), w(asize.width()), h(asize.height())
+    inline ZQEllipseF::ZQEllipseF(const QPointF &atopLeft, const QPointF &asize, qreal angle) noexcept
+        : xp(atopLeft.x()), yp(atopLeft.y()), w(asize.x()), h(asize.y())
     {
+        a = normalizedAngle(angle);
     }
 
-    constexpr inline ZQEllipseF::ZQEllipseF(const QPointF &atopLeft, const QSizeF &asize, qreal angle) noexcept
-        : xp(atopLeft.x()), yp(atopLeft.y()), w(asize.width()), h(asize.height()), a(normalizedAngle(angle))
-    {
-    }
-
-
-    constexpr inline ZQEllipseF::ZQEllipseF(const QPointF &atopLeft, const QPointF &abottomRight) noexcept
-        : xp(atopLeft.x()), yp(atopLeft.y()), w(abottomRight.x() - atopLeft.x()), h(abottomRight.y() - atopLeft.y())
-    {
-    }
-
-
-    constexpr inline ZQEllipseF::ZQEllipseF(const QPointF &atopLeft, const QPointF &abottomRight, qreal angle) noexcept
-        : xp(atopLeft.x()), yp(atopLeft.y()), w(abottomRight.x() - atopLeft.x()), h(abottomRight.y() - atopLeft.y()),
-            a(normalizedAngle(angle))
-    {
-    }
 
     constexpr inline ZQEllipseF::ZQEllipseF(const ZQEllipse &r) noexcept
-        : xp(r.x()), yp(r.y()), w(r.width()), h(r.height())
+        : xp(r.x()), yp(r.y()), w(r.width()), h(r.height()), a(r.angle())
     {
     }
 
@@ -905,38 +1004,17 @@ namespace z_qtshapes {
     constexpr inline QSizeF ZQEllipseF::size() const noexcept
     { return QSizeF(w, h); }
 
-    inline void ZQEllipseF::translate(qreal dx, qreal dy) noexcept
-    {
-        xp += dx;
-        yp += dy;
-    }
+    inline void ZQEllipseF::rotate(qreal a_) noexcept
+    { a += normalizedAngle(a_); }
 
-    inline void ZQEllipseF::translate(const QPointF &p) noexcept
-    {
-        xp += p.x();
-        yp += p.y();
-    }
+    inline void ZQEllipseF::rotateRadians(qreal a_) noexcept
+    { a += normalizedAngle(180/M_PI * (a_)); }
 
-    inline void ZQEllipseF::rotate(qreal angle) const noexcept
-    { a += normalizedAngle(angle); }
+    inline ZQEllipseF ZQEllipseF::rotated(qreal a_) const noexcept
+    { return ZQEllipse(xp, yp, w, h, a + normalizedAngle(a_)); }
 
-    inline void ZQEllipseF::rotateRadians(qreal angle) const noexcept
-    { a += (normalizedAngle(180/M_PI * angle)); }
-
-    constexpr inline ZQEllipseF ZQEllipseF::rotate(qreal angle) const noexcept
-    { return ZQEllipse(x1, y1, x2, y2, a + normalizedAngle(angle)); }
-
-    constexpr inline ZQEllipseF ZQEllipseF::rotateRadians(qreal angle) const noexcept
-    { return ZQEllipse(x1, y1, x2, y2, a + normalizedAngle((180/M_PI * angle))); }
-
-    inline qreal ZQEllipseF::normalizedAngle(qreal a) noexcept
-    {
-        while (a < 0)
-            a += 360 * MAX_ROTATIONS;
-        while (angle >= 360 * MAX_ROTATIONS)
-            a -= 360 * MAX_ROTATIONS;
-        return a;
-    }
+    inline ZQEllipseF ZQEllipseF::rotatedRadians(qreal a_) const noexcept
+    { return ZQEllipse(xp, yp, w, h, a + normalizedAngle(180/M_PI * a_)); }
 
     inline void ZQEllipseF::moveTo(qreal ax, qreal ay) noexcept
     {
@@ -950,14 +1028,67 @@ namespace z_qtshapes {
         yp = p.y();
     }
 
-    constexpr inline ZQEllipseF ZQEllipseF::translated(qreal dx, qreal dy) const noexcept
-    { return ZQEllipseF(xp + dx, yp + dy, w, h); }
+    inline void ZQEllipseF::translate(qreal dx, qreal dy) noexcept
+    {
+        xp += dx;
+        yp += dy;
+    }
 
-    constexpr inline ZQEllipseF ZQEllipseF::translated(const QPointF &p) const noexcept
-    { return ZQEllipseF(xp + p.x(), yp + p.y(), w, h); }
+    inline void ZQEllipseF::translate(qreal dx, qreal dy, qreal a_) noexcept
+    {
+        xp += dx;
+        yp += dy;
+        a = normalizedAngle(a + a_);
+    }
 
-    constexpr inline ZQEllipseF ZQEllipseF::transposed() const noexcept
-    { return ZQEllipseF(topLeft(), size().transposed()); }
+    inline void ZQEllipseF::translateRadians(qreal dx, qreal dy, qreal a_) noexcept
+    {
+        xp += dx;
+        yp += dy;
+        a = normalizedAngle(a + 180/M_PI * a_);
+    }
+
+    inline void ZQEllipseF::translate(const QPointF &p) noexcept
+    {
+        xp += p.x();
+        yp += p.y();
+    }
+
+    inline void ZQEllipseF::translate(const QPointF &p, qreal a_) noexcept
+    {
+        xp += p.x();
+        yp += p.y();
+        a = normalizedAngle(a + a_);
+    }
+
+    inline void ZQEllipseF::translateRadians(const QPointF &p, qreal a_) noexcept
+    {
+        xp += p.x();
+        yp += p.y();
+        a = normalizedAngle(a + 180/M_PI * a_);
+    }
+
+    inline ZQEllipseF ZQEllipseF::translated(qreal dx, qreal dy) const noexcept
+    { return ZQEllipseF(xp + dx, yp + dy, w, h, a); }
+
+    inline ZQEllipseF ZQEllipseF::translated(qreal dx, qreal dy, qreal a_) const noexcept
+    { return ZQEllipseF(xp + dx, yp + dy, w, h, normalizedAngle(a + a_)); }
+
+    inline ZQEllipseF ZQEllipseF::translatedRadians(qreal dx, qreal dy, qreal a_) const noexcept
+    { return ZQEllipseF(xp + dx, yp + dy, w, h, normalizedAngle(a + 180/M_PI * a_)); }
+
+    inline ZQEllipseF ZQEllipseF::translated(const QPointF &p) const noexcept
+    { return ZQEllipseF(xp + p.x(), yp + p.y(), w, h, a); }
+
+    inline ZQEllipseF ZQEllipseF::translated(const QPointF &p, qreal a_) const noexcept
+    { return ZQEllipseF(xp + p.x(), yp + p.y(), w, h, normalizedAngle(a + a_)); }
+
+    inline ZQEllipseF ZQEllipseF::translatedRadians(const QPointF &p, qreal a_) const noexcept
+    { return ZQEllipseF(xp + p.x(), yp + p.y(), w, h, normalizedAngle(a + 180/M_PI * a_)); }
+
+
+    inline ZQEllipseF ZQEllipseF::transposed() const noexcept
+    { return ZQEllipseF(topLeft(), QPointF(bottomRight().y(), bottomRight().x()), a); }
 
     inline void ZQEllipseF::getEllipse(qreal *ax, qreal *ay, qreal *aaw, qreal *aah) const
     {
@@ -976,6 +1107,15 @@ namespace z_qtshapes {
         *aaa = this->a;
     }
 
+    inline void ZQEllipseF::getEllipseRadians(qreal *ax, qreal *ay, qreal *aaw, qreal *aah, qreal *aaa) const
+    {
+        *ax = this->xp;
+        *ay = this->yp;
+        *aaw = this->w;
+        *aah = this->h;
+        *aaa = M_PI/180 * this->a;
+    }
+
     inline void ZQEllipseF::setEllipse(qreal ax, qreal ay, qreal aaw, qreal aah) noexcept
     {
         this->xp = ax;
@@ -990,9 +1130,17 @@ namespace z_qtshapes {
         this->yp = ay;
         this->w = aaw;
         this->h = aah;
-        this->a = aaa;
+        this->a = normalizedAngle(aaa);
     }
 
+    inline void ZQEllipseF::setEllipseRadians(qreal ax, qreal ay, qreal aaw, qreal aah, qreal aaa) noexcept
+    {
+        this->xp = ax;
+        this->yp = ay;
+        this->w = aaw;
+        this->h = aah;
+        this->a = normalizedAngle(180/M_PI * aaa);
+    }
 
     inline void ZQEllipseF::getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2) const
     {
@@ -1002,22 +1150,22 @@ namespace z_qtshapes {
         *yp2 = yp + h;
     }
 
-    inline void ZQEllipseF::getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *angle) const
+    inline void ZQEllipseF::getCoords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *a_) const
     {
         *xp1 = xp;
         *yp1 = yp;
         *xp2 = xp + w;
         *yp2 = yp + h;
-        *angle = a;
+        *a_ = a;
     }
 
-    inline void ZQEllipseF::getCoordsRadians(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *angle) const
+    inline void ZQEllipseF::getCoordsRadians(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2, qreal *a_) const
     {
         *xp1 = xp;
         *yp1 = yp;
         *xp2 = xp + w;
         *yp2 = yp + h;
-        *angle = M_PI/180 * a;
+        *a_ = M_PI/180 * a;
     }
 
     inline void ZQEllipseF::setCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2) noexcept
@@ -1028,22 +1176,22 @@ namespace z_qtshapes {
         h = yp2 - yp1;
     }
 
-    inline void ZQEllipseF::setCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept
+    inline void ZQEllipseF::setCoords(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal a_) noexcept
     {
         xp = xp1;
         yp = yp1;
         w = xp2 - xp1;
         h = yp2 - yp1;
-        a = normalizedAngle(angle);
+        a = normalizedAngle(a_);
     }
 
-    inline void ZQEllipseF::setCoordsRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept
+    inline void ZQEllipseF::setCoordsRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal a_) noexcept
     {
         xp = xp1;
         yp = yp1;
         w = xp2 - xp1;
         h = yp2 - yp1;
-        a = normalizedAngle(180/M_PI * angle);
+        a = normalizedAngle(180/M_PI * a_);
     }
 
     inline void ZQEllipseF::adjust(qreal xp1, qreal yp1, qreal xp2, qreal yp2) noexcept
@@ -1055,13 +1203,13 @@ namespace z_qtshapes {
     inline void ZQEllipseF::adjustRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) noexcept
     { xp += xp1; yp += yp1; w += xp2 - xp1; h += yp2 - yp1; angle = normalizedAngle(a + 180/M_PI * angle); }
 
-    constexpr inline ZQEllipseF ZQEllipseF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const noexcept
-    { return ZQEllipseF(xp + xp1, yp + yp1, w + xp2 - xp1, h + yp2 - yp1); }
+    inline ZQEllipseF ZQEllipseF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const noexcept
+    { return ZQEllipseF(xp + xp1, yp + yp1, w + xp2 - xp1, h + yp2 - yp1, a); }
 
-    constexpr inline ZQEllipseF ZQEllipseF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept
+    inline ZQEllipseF ZQEllipseF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept
     { return ZQEllipseF(xp + xp1, yp + yp1, w + xp2 - xp1, h + yp2 - yp1, normalizedAngle(a + angle)); }
 
-    constexpr inline ZQEllipseF ZQEllipseF::adjustedRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept
+    inline ZQEllipseF ZQEllipseF::adjustedRadians(qreal xp1, qreal yp1, qreal xp2, qreal yp2, qreal angle) const noexcept
     { return ZQEllipseF(xp + xp1, yp + yp1, w + xp2 - xp1, h + yp2 - yp1, normalizedAngle(a + 180/M_PI * angle)); }
 
     inline void ZQEllipseF::setWidth(qreal aw) noexcept
@@ -1079,11 +1227,6 @@ namespace z_qtshapes {
     inline bool ZQEllipseF::contains(qreal ax, qreal ay) const noexcept
     {
         return contains(QPointF(ax, ay));
-    }
-
-    constexpr inline QString toString() const noexcept
-    {
-        return QString("ZQEllipseF(%1,%2 size %3x%4 %5 degrees)").arg(xp, yp, w, h, a));
     }
 
     inline QPainterPath ZQEllipseF::intersected(const ZQEllipseF &r) const noexcept
@@ -1109,39 +1252,40 @@ namespace z_qtshapes {
                || !qFuzzyCompare(r1.w, r2.w) || !qFuzzyCompare(r1.h, r2.h);
     }
 
-    constexpr inline ZQEllipse ZQEllipseF::toEllipse() const noexcept
+    inline ZQEllipse ZQEllipseF::toEllipse() const noexcept
     {
-        return ZQEllipse(QPoint(qRound(xp), qRound(yp)), QPoint(qRound(xp + w) - 1, qRound(yp + h) - 1));
+        return ZQEllipse(QPoint(qRound(xp), qRound(yp)), QPoint(qRound(xp + w) - 1, qRound(yp + h) - 1), qRound(a));
     }
 
-    constexpr inline ZQEllipseF operator+(const ZQEllipseF &lhs, const QMarginsF &rhs) noexcept
+    inline ZQEllipseF operator+(const ZQEllipseF &lhs, const QMarginsF &rhs) noexcept
     {
         return ZQEllipseF(QPointF(lhs.left() - rhs.left(), lhs.top() - rhs.top()),
-                      QSizeF(lhs.width() + rhs.left() + rhs.right(), lhs.height() + rhs.top() + rhs.bottom()));
+                      QPointF(lhs.width() + rhs.left() + rhs.right(), lhs.height() + rhs.bottom() + rhs.bottom()),
+                      lhs.angle());
     }
 
-    constexpr inline ZQEllipseF operator+(const QMarginsF &lhs, const ZQEllipseF &rhs) noexcept
+    inline ZQEllipseF operator+(const QMarginsF &lhs, const ZQEllipseF &rhs) noexcept
     {
         return ZQEllipseF(QPointF(rhs.left() - lhs.left(), rhs.top() - lhs.top()),
-                      QSizeF(rhs.width() + lhs.left() + lhs.right(), rhs.height() + lhs.top() + lhs.bottom()));
+                      QPointF(rhs.width() + lhs.left() + lhs.right(), rhs.height() + lhs.bottom() + lhs.bottom()), rhs.angle());
     }
 
-    constexpr inline ZQEllipseF operator-(const ZQEllipseF &lhs, const QMarginsF &rhs) noexcept
+    inline ZQEllipseF operator-(const ZQEllipseF &lhs, const QMarginsF &rhs) noexcept
     {
         return ZQEllipseF(QPointF(lhs.left() + rhs.left(), lhs.top() + rhs.top()),
-                      QSizeF(lhs.width() - rhs.left() - rhs.right(), lhs.height() - rhs.top() - rhs.bottom()));
+                      QPointF(lhs.width() - rhs.left() - rhs.right(), lhs.height() - rhs.bottom() - rhs.bottom()), lhs.angle());
     }
 
-    constexpr inline ZQEllipseF ZQEllipseF::marginsAdded(const QMarginsF &margins) const noexcept
+    inline ZQEllipseF ZQEllipseF::marginsAdded(const QMarginsF &margins) const noexcept
     {
         return ZQEllipseF(QPointF(xp - margins.left(), yp - margins.top()),
-                      QSizeF(w + margins.left() + margins.right(), h + margins.top() + margins.bottom()));
+                      QPointF(w + margins.left() + margins.right(), h + margins.bottom() + margins.bottom()), a);
     }
 
-    constexpr inline ZQEllipseF ZQEllipseF::marginsRemoved(const QMarginsF &margins) const noexcept
+    inline ZQEllipseF ZQEllipseF::marginsRemoved(const QMarginsF &margins) const noexcept
     {
         return ZQEllipseF(QPointF(xp + margins.left(), yp + margins.top()),
-                      QSizeF(w - margins.left() - margins.right(), h - margins.top() - margins.bottom()));
+                      QPointF(w - margins.left() - margins.right(), h - margins.bottom() - margins.bottom()), a);
     }
 
     inline ZQEllipseF &ZQEllipseF::operator+=(const QMarginsF &margins) noexcept

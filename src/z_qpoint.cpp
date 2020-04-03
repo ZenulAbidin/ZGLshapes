@@ -389,7 +389,7 @@ namespace z_qtshapes {
     {
         QDebugStateSaver saver(dbg);
         dbg.nospace();
-        dbg << toString();
+        dbg << p.toString();
         return dbg;
     }
 
@@ -397,7 +397,7 @@ namespace z_qtshapes {
     {
         QDebugStateSaver saver(dbg);
         dbg.nospace();
-        dbg << toString();
+        dbg << p.toString();
         return dbg;
     }
     #endif
