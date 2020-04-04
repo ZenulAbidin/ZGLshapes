@@ -406,7 +406,7 @@ namespace z_qtshapes {
 
     inline void ZQTri::setY1(int y) noexcept
     {
-        y1p += y;
+        y1p = y;
     }
 
     inline void ZQTri::setX2(int x) noexcept
@@ -1136,7 +1136,7 @@ namespace z_qtshapes {
 
     inline void ZQTriF::setY1(qreal y) noexcept
     {
-        y1p += y;
+        y1p = y;
     }
 
     inline void ZQTriF::setX2(qreal x) noexcept
@@ -1450,13 +1450,13 @@ namespace z_qtshapes {
     { a = normalizedAngle(a + a_); }
 
     inline void ZQTriF::rotateRadians(qreal a_) noexcept
-    { a = (180/M_PI * normalizedAngle(a + a_)); }
+    { a = normalizedAngle(a + (180/M_PI * a_)); }
 
     inline ZQTriF ZQTriF::rotated(qreal a_) const noexcept
-    { return ZQTri(x1p, y1p, x2p, y2p, x3p, y3p, normalizedAngle(a + a_)); }
+    { return ZQTriF(x1p, y1p, x2p, y2p, x3p, y3p, normalizedAngle(a + a_)); }
 
     inline ZQTriF ZQTriF::rotatedRadians(qreal a_) const noexcept
-    { return ZQTri(x1p, y1p, x2p, y2p, x3p, y3p, normalizedAngle(a + (180/M_PI * a_))); }
+    { return ZQTriF(x1p, y1p, x2p, y2p, x3p, y3p, normalizedAngle(a + (180/M_PI * a_))); }
 
 
     inline ZQTriF ZQTriF::translated(qreal dx, qreal dy) const noexcept

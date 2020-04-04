@@ -107,10 +107,10 @@ namespace z_qtshapes {
         inline void adjust(int dx1, int dy1, int dx2, int dy2, int a_) noexcept;
         inline void adjustRadians(int dx1, int dy1, int dx2, int dy2, qreal a_) noexcept;
 
-        constexpr inline ZQLine adjusted(const QPoint &p1, const QPoint &p2) const noexcept;
+        inline ZQLine adjusted(const QPoint &p1, const QPoint &p2) const noexcept;
         inline ZQLine adjusted(const QPoint &p1, const QPoint &p2, int a_) const noexcept;
         inline ZQLine adjustedRadians(const QPoint &p1, const QPoint &p2, qreal a_) const noexcept;
-        constexpr inline ZQLine adjusted(int dx1, int dy1, int dx2, int dy2) const noexcept;
+        inline ZQLine adjusted(int dx1, int dy1, int dx2, int dy2) const noexcept;
         inline ZQLine adjusted(int dx1, int dy1, int dx2, int dy2, int a_) const noexcept;
         inline ZQLine adjustedRadians(int dx1, int dy1, int dx2, int dy2, qreal a_) const noexcept;
 
@@ -337,9 +337,9 @@ namespace z_qtshapes {
         this->adjustRadians(QPoint(adx1, ady1), QPoint(adx2, ady2), a_);
     }
 
-    constexpr inline ZQLine ZQLine::adjusted(const QPoint &p, const QPoint &p2) const noexcept
+    inline ZQLine ZQLine::adjusted(const QPoint &p, const QPoint &p2) const noexcept
     {
-        return ZQLine(pt1 + p, pt2 + p2);
+        return ZQLine(pt1 + p, pt2 + p2, a);
     }
 
     inline ZQLine ZQLine::adjusted(const QPoint &p, const QPoint &p2, int a_) const noexcept
@@ -352,9 +352,9 @@ namespace z_qtshapes {
         return ZQLine(pt1 + p, pt2 + p2, a + normalizedAngle(a_));
     }
 
-    constexpr inline ZQLine ZQLine::adjusted(int adx1, int ady1, int adx2, int ady2) const noexcept
+    inline ZQLine ZQLine::adjusted(int adx1, int ady1, int adx2, int ady2) const noexcept
     {
-        return adjusted(QPoint(adx1, ady1), QPoint(adx2, ady2));
+        return adjusted(QPoint(adx1, ady1), QPoint(adx2, ady2), a);
     }
 
     inline ZQLine ZQLine::adjusted(int adx1, int ady1, int adx2, int ady2, int a_) const noexcept
@@ -568,10 +568,10 @@ namespace z_qtshapes {
         inline void adjust(qreal dx1, qreal dy1, qreal dx2, qreal dy2, qreal a_) noexcept;
         inline void adjustRadians(qreal dx1, qreal dy1, qreal dx2, qreal dy2, qreal a_) noexcept;
 
-        constexpr inline ZQLineF adjusted(const QPointF &p1, const QPointF &p2) const noexcept;
+        inline ZQLineF adjusted(const QPointF &p1, const QPointF &p2) const noexcept;
         inline ZQLineF adjusted(const QPointF &p1, const QPointF &p2, qreal a_) const noexcept;
         inline ZQLineF adjustedRadians(const QPointF &p1, const QPointF &p2, qreal a_) const noexcept;
-        constexpr inline ZQLineF adjusted(qreal dx1, qreal dy1, qreal dx2, qreal dy2) const noexcept;
+        inline ZQLineF adjusted(qreal dx1, qreal dy1, qreal dx2, qreal dy2) const noexcept;
         inline ZQLineF adjusted(qreal dx1, qreal dy1, qreal dx2, qreal dy2, qreal a_) const noexcept;
         inline ZQLineF adjustedRadians(qreal dx1, qreal dy1, qreal dx2, qreal dy2, qreal a_) const noexcept;
 
@@ -805,9 +805,9 @@ namespace z_qtshapes {
         this->adjustRadians(QPointF(adx1, ady1), QPointF(adx2, ady2), a_);
     }
 
-    constexpr inline ZQLineF ZQLineF::adjusted(const QPointF &p, const QPointF &p2) const noexcept
+    inline ZQLineF ZQLineF::adjusted(const QPointF &p, const QPointF &p2) const noexcept
     {
-        return ZQLineF(pt1 + p, pt2 + p2);
+        return ZQLineF(pt1 + p, pt2 + p2, a);
     }
 
     inline ZQLineF ZQLineF::adjusted(const QPointF &p, const QPointF &p2, qreal a_) const noexcept
@@ -820,9 +820,9 @@ namespace z_qtshapes {
         return ZQLineF(pt1 + p, pt2 + p2, normalizedAngle(a + a_));
     }
 
-    constexpr inline ZQLineF ZQLineF::adjusted(qreal adx1, qreal ady1, qreal adx2, qreal ady2) const noexcept
+    inline ZQLineF ZQLineF::adjusted(qreal adx1, qreal ady1, qreal adx2, qreal ady2) const noexcept
     {
-        return adjusted(QPointF(adx1, ady1), QPointF(adx2, ady2));
+        return adjusted(QPointF(adx1, ady1), QPointF(adx2, ady2), a);
     }
 
     inline ZQLineF ZQLineF::adjusted(qreal adx1, qreal ady1, qreal adx2, qreal ady2, qreal a_) const noexcept

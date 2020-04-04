@@ -260,8 +260,8 @@ namespace z_qtshapes {
     */
     ZQLine ZQLine::fromPolar(int length, int angle) noexcept
     {
-        const qreal angleR = angle * M_2_PI / 360.0;
-        return ZQLine(0, 0, (int) (qCos(angleR) * length), int(-qSin(angleR) * length));
+        const qreal angleR = angle * M_PI / 180.0;
+        return ZQLine(0, 0, (int) (qRound(qCos(angleR) * length)), (int) (qRound(-qSin(angleR) * length)));
     }
 
 
@@ -1026,7 +1026,7 @@ namespace z_qtshapes {
     */
     ZQLineF ZQLineF::fromPolar(qreal length, qreal angle) noexcept
     {
-        const qreal angleR = angle * M_2_PI / 360.0;
+        const qreal angleR = angle * M_PI / 180.0;
         return ZQLineF(0, 0, qCos(angleR) * length, -qSin(angleR) * length);
     }
 
