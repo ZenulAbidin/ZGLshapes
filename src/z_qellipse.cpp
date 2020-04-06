@@ -1342,15 +1342,11 @@ namespace z_qtshapes {
 
         QPainterPath path;
         QPointF c1 = QPointF(center().x(), top());
-        QPointF c2 = QPointF(topRight());
-        c2.rx() *= 4/3;
-        QPointF c3 = QPointF(bottomRight());
-        c3.rx() *= 4/3;
+        QPointF c2 = QPointF(center().x() + (right()-center().x())*4/3, top());
+        QPointF c3 = QPointF(center().x() + (right()-center().x())*4/3, bottom());
         QPointF c4 = QPointF(center().x(), bottom());
-        QPointF c5 = QPointF(bottomLeft());
-        c5.rx() *= 4/3;
-        QPointF c6 = QPointF(topLeft());
-        c6.rx() *= 4/3;
+        QPointF c5 = QPointF(center().x() - (center().x()-left())*4/3, bottom());
+        QPointF c6 = QPointF(center().x() - (center().x()-left())*4/3, top());
         QPointF cn = center();
 
         QPointF c1a, c2a, c3a, c4a, c5a, c6a;
@@ -1380,15 +1376,11 @@ namespace z_qtshapes {
     {
         QPainterPath path;
         QPointF c1 = QPointF(center().x(), top());
-        QPointF c2 = QPointF(topRight());
-        c2.rx() *= 4/3;
-        QPointF c3 = QPointF(bottomRight());
-        c3.rx() *= 4/3;
+        QPointF c2 = QPointF(center().x() + (right()-center().x())*4/3, top());
+        QPointF c3 = QPointF(center().x() + (right()-center().x())*4/3, bottom());
         QPointF c4 = QPointF(center().x(), bottom());
-        QPointF c5 = QPointF(bottomLeft());
-        c5.rx() *= 4/3;
-        QPointF c6 = QPointF(topLeft());
-        c6.rx() *= 4/3;
+        QPointF c5 = QPointF(center().x() - (center().x()-left())*4/3, bottom());
+        QPointF c6 = QPointF(center().x() - (center().x()-left())*4/3, top());
         QPointF cn = center();
 
         QPointF c1a, c2a, c3a, c4a, c5a, c6a;
@@ -2646,15 +2638,11 @@ namespace z_qtshapes {
 
         QPainterPath path;
         QPointF c1 = QPointF(center().x(), top());
-        QPointF c2 = topRight();
-        c2.rx() *= 4/3;
-        QPointF c3 = bottomRight();
-        c3.rx() *= 4/3;
+        QPointF c2 = QPointF(center().x() + (right()-center().x())*4/3, top());
+        QPointF c3 = QPointF(center().x() + (right()-center().x())*4/3, bottom());
         QPointF c4 = QPointF(center().x(), bottom());
-        QPointF c5 = bottomLeft();
-        c5.rx() *= 4/3;
-        QPointF c6 = topLeft();
-        c6.rx() *= 4/3;
+        QPointF c5 = QPointF(center().x() - (center().x()-left())*4/3, bottom());
+        QPointF c6 = QPointF(center().x() - (center().x()-left())*4/3, top());
         QPointF cn = center();
 
         QPointF c1a, c2a, c3a, c4a, c5a, c6a;
@@ -2684,15 +2672,11 @@ namespace z_qtshapes {
     {
         QPainterPath path;
         QPointF c1 = QPointF(center().x(), top());
-        QPointF c2 = topRight();
-        c2.rx() *= 4/3;
-        QPointF c3 = bottomRight();
-        c3.rx() *= 4/3;
+        QPointF c2 = QPointF(center().x() + (right()-center().x())*4/3, top());
+        QPointF c3 = QPointF(center().x() + (right()-center().x())*4/3, bottom());
         QPointF c4 = QPointF(center().x(), bottom());
-        QPointF c5 = bottomLeft();
-        c5.rx() *= 4/3;
-        QPointF c6 = topLeft();
-        c6.rx() *= 4/3;
+        QPointF c5 = QPointF(center().x() - (center().x()-left())*4/3, bottom());
+        QPointF c6 = QPointF(center().x() - (center().x()-left())*4/3, top());
         QPointF cn = center();
 
         QPointF c1a, c2a, c3a, c4a, c5a, c6a;
