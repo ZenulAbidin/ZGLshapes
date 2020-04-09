@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.1.0)
 
-project(ZGLshapes VERSION 1.0)
-
 include(${ZGLSHAPES_HEADERS_DIR}/CMakeLists.txt)
 
 list(APPEND ZGLshapes_tests_QPOINT

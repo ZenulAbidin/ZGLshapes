@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.1.0)
 
-project(ZGLshapes VERSION 1.0)
-
 set(INCLUDE_FILES z_base.h z_qpoint.h z_qline.h z_qtri.h z_qrect.h z_qellipse.h)
 
 list(APPEND ZGLshapes_INCLUDES
