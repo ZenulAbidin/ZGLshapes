@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.1.0)
+
+project(ZGLshapes VERSION 1.0)
+
+add_subdirectory(base)
+add_subdirectory(qpoint)
+add_subdirectory(qpointf)
+add_subdirectory(qline)
+add_subdirectory(qlinef)
+add_subdirectory(qtri)
+add_subdirectory(qtrif)
+add_subdirectory(qrect)
+add_subdirectory(qrectf)
+add_subdirectory(qellipse)
+add_subdirectory(qellipsef)
