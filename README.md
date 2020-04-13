@@ -17,4 +17,4 @@ Create a new build directory with `mkdir build; cd build` Then run `cmake ..; ma
 
 ## Testing
 
-Run the `./run-tests.sh` script in the generated build directory to run the tests. This file is not automatically regenerated at this time, and needs to be updated manually. Arguments passed to this script will be passed to all of the Boost.Test modules.
+Run `bash -c "run-tests.sh --log_level=all"` in the generated build directory to run the tests. Arguments passed to this script will be passed to all of the Boost.Test modules.

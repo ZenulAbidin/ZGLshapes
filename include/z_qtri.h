@@ -48,6 +48,7 @@
 #include <QDataStream>
 #include <QDebug>
 #include "z_base.h"
+#include "z_geometry_util.h"
 
 namespace z_qtshapes {
 
@@ -61,7 +62,7 @@ namespace z_qtshapes {
 
         constexpr inline bool isNull() const noexcept;
         constexpr inline bool isEmpty() const noexcept;
-        //constexpr inline bool isValid() const noexcept;
+        inline bool isValid() const noexcept;
 
         constexpr inline QPoint first() const noexcept;
         constexpr inline QPoint second() const noexcept;
@@ -235,6 +236,9 @@ namespace z_qtshapes {
 
     constexpr inline bool ZQTri::isEmpty() const noexcept
     { return x2p == x1p && x3p == x1p && y1p == x1p && y2p == x1p && y3p == x1p; }
+
+    inline bool ZQTri::isValid() const noexcept
+    { return !z_geometry_util::isCollinear(QPoint(x1p, y1p), QPoint(x2p, y2p), QPoint(x3p, y3p)); }
 
     constexpr inline int ZQTri::x1() const noexcept
     { return x1p; }
@@ -879,7 +883,7 @@ namespace z_qtshapes {
 
         constexpr inline bool isNull() const noexcept;
         constexpr inline bool isEmpty() const noexcept;
-        //constexpr inline bool isValid() const noexcept;
+        inline bool isValid() const noexcept;
 
         constexpr inline QPointF first() const noexcept;
         constexpr inline QPointF second() const noexcept;
@@ -1065,6 +1069,9 @@ namespace z_qtshapes {
 
     constexpr inline bool ZQTriF::isEmpty() const noexcept
     { return x2p == x1p && x3p == x1p && y1p == x1p && y2p == x1p && y3p == x1p; }
+
+    inline bool ZQTriF::isValid() const noexcept
+    { return !z_geometry_util::isCollinear(QPointF(x1p, y1p), QPointF(x2p, y2p), QPointF(x3p, y3p)); }
 
     constexpr inline qreal ZQTriF::x1() const noexcept
     { return x1p; }

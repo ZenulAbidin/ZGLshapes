@@ -45,6 +45,12 @@
 #include <tgmath.h>
 #include <QtMath>
 
+/* TODO
+ * qFuzzyEquals that always works
+ * qFuzzyLessEquals
+ * qFuzzyGreaterEquals
+ */
+
 namespace z_qtshapes {
 
     const int MAX_ROTATIONS = 16;
