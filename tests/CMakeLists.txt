@@ -82,6 +82,8 @@ set(TEST_Z_QTSHAPES_QELLIPSEF_7 ${CMAKE_CURRENT_LIST_DIR}/test_z_qtshapes_qellip
 set(TEST_Z_QTSHAPES_QELLIPSEF_8 ${CMAKE_CURRENT_LIST_DIR}/test_z_qtshapes_qellipsef_8)
 set(TEST_Z_QTSHAPES_QELLIPSEF_9 ${CMAKE_CURRENT_LIST_DIR}/test_z_qtshapes_qellipsef_9)
 
+set(TEST_Z_LINALG ${CMAKE_CURRENT_LIST_DIR}/test_z_linalg)
+
 
 # Due to CMake limitations you must remove the run-tests.sh file after updating this list
 # before building again, or the new list will not be written to the file.
@@ -158,10 +160,13 @@ list(APPEND ZGLshapes_TESTS
     "${TEST_Z_QTSHAPES_QELLIPSEF_7} \$@\n"
     "${TEST_Z_QTSHAPES_QELLIPSEF_8} \$@\n"
     "${TEST_Z_QTSHAPES_QELLIPSEF_9} \$@\n"
+    "${TEST_Z_LINALG} \$@\n"
 )
 
 # Run generated file using "bash -c run-tests.sh"
 file(WRITE "run-tests.sh" ${ZGLshapes_TESTS})
+
+add_executable(run-tests run-tests.cpp)
 
 add_subdirectory(base)
 add_subdirectory(qpoint)
@@ -174,3 +179,4 @@ add_subdirectory(qrect)
 add_subdirectory(qrectf)
 add_subdirectory(qellipse)
 add_subdirectory(qellipsef)
+add_subdirectory(linalg)

@@ -242,9 +242,10 @@ namespace z_linalg {
                     goto outer_loop;
                 }
             }
-           r += 1;
+            continue;
 outer_loop:
-           continue;
+            r += 1;
+            continue;
         }
         return r;
 
