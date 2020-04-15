@@ -1195,7 +1195,6 @@ namespace z_qtshapes {
     QDebug operator<<(QDebug dbg, const ZQTri &r)
     {
         QDebugStateSaver saver(dbg);
-        dbg.nospace();
         dbg << r.toString();
         return dbg;
     }
@@ -2360,7 +2359,6 @@ namespace z_qtshapes {
     QDebug operator<<(QDebug dbg, const ZQTriF &r)
     {
         QDebugStateSaver saver(dbg);
-        dbg.nospace();
         dbg << r.toString();
         return dbg;
     }

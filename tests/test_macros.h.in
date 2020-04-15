@@ -1,0 +1,18 @@
+#ifndef TEST_MACROS_H
+#define TEST_MACROS_H
+
+#define ALL_TESTS       @ALL_TESTS@
+#define TEST_LINALG     @ALL_TESTS@ || @TEST_LINALG@
+#define TEST_BASE       @ALL_TESTS@ || @TEST_BASE@
+#define TEST_QPOINT     @ALL_TESTS@ || @TEST_QPOINT@
+#define TEST_QPOINTF    @ALL_TESTS@ || @TEST_QPOINTF@
+#define TEST_QLINE      @ALL_TESTS@ || @TEST_QLINE@
+#define TEST_QLINEF     @ALL_TESTS@ || @TEST_QLINEF@
+#define TEST_QTRI       @ALL_TESTS@ || @TEST_QTRI@
+#define TEST_QTRIF      @ALL_TESTS@ || @TEST_QTRIF@
+#define TEST_QRECT      @ALL_TESTS@ || @TEST_QRECT@
+#define TEST_QRECTF     @ALL_TESTS@ || @TEST_QRECTF@
+#define TEST_QELLIPSE   @ALL_TESTS@ || @TEST_QELLIPSE@
+#define TEST_QELLIPSEF  @ALL_TESTS@ || @TEST_QELLIPSEF@
+
+#endif

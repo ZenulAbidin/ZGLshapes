@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0)
 
 include(${ZGLSHAPES_HEADERS_DIR}/CMakeLists.txt)
+#include(linalg/CMakeLists.txt)
 
 list(APPEND ZGLshapes_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/z_qpoint.cpp
@@ -11,7 +12,6 @@ list(APPEND ZGLshapes_SOURCES
 )
 
 
-#set(SOURCE_FILES z_qpoint.cpp z_qline.cpp z_qtri.cpp z_qrect.cpp z_qellipse.cpp)
 
 add_library(zglshapes2d SHARED ${ZGLshapes_SOURCES})
 target_link_libraries(zglshapes2d Qt5::Widgets)

@@ -675,7 +675,6 @@ namespace z_qtshapes {
     QDebug operator<<(QDebug dbg, const ZQLine &p)
     {
         QDebugStateSaver saver(dbg);
-        dbg.nospace();
         dbg << p.toString();
         return dbg;
     }
@@ -1451,7 +1450,6 @@ namespace z_qtshapes {
     QDebug operator<<(QDebug dbg, const ZQLineF &p)
     {
         QDebugStateSaver saver(dbg);
-        dbg.nospace();
         dbg << p.toString();
         return dbg;
     }

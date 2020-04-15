@@ -12,6 +12,8 @@ list(APPEND ZGLshapes_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/z_qellipse.h
     ${CMAKE_CURRENT_LIST_DIR}/z_linalg.h
     ${CMAKE_CURRENT_LIST_DIR}/z_geometry_util.h
+    ${CMAKE_CURRENT_LIST_DIR}/z_matrix.h
+    ${CMAKE_CURRENT_LIST_DIR}/z_offsetmatrix.h
 )
 
 list(APPEND ZGLshapes_Boost_INCLUDES

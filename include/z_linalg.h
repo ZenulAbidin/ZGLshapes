@@ -6,8 +6,9 @@
 #include <cassert>
 
 #include <QtWidgets>
-//FIXME require QtGui in cmake?
 #include <QGenericMatrix>
+#include "z_matrix.h"
+#include "z_offsetmatrix.h"
 
 namespace z_linalg {
 
@@ -79,8 +80,6 @@ namespace z_linalg {
       { return A[i][k]; }
     };
 
-    // specialization of the matrix traits for built-in two-dimensional
-    // arrays
     template<> struct matrix_traits<QMatrix4x4>
     {
       typedef int index_type;
@@ -100,7 +99,6 @@ namespace z_linalg {
                                 index_type i, index_type k)
       { return A(i, k); }
     };
-
 
     template <int N, int M, typename T>
     struct matrix_traits<QGenericMatrix<N, M, T>>
@@ -122,8 +120,61 @@ namespace z_linalg {
                                 index_type i, index_type k)
       { return A(i, k); }
     };
+
+    template <int minN, int maxN, int minM, int maxM, typename T>
+    struct matrix_traits<ZQOffsetMatrix<minN, maxN, minM, maxM, T>>
+    {
+      typedef int index_type;
+      typedef T value_type;
+      static index_type min_row(const ZQOffsetMatrix<minN, maxN, minM, maxM, T> &)
+      { return minM; }
+      static index_type max_row(const ZQOffsetMatrix<minN, maxN, minM, maxM, T> &)
+      { return maxM; }
+      static index_type min_column(const ZQOffsetMatrix<minN, maxN, minM, maxM, T> &)
+      { return minN; }
+      static index_type max_column(const ZQOffsetMatrix<minN, maxN, minM, maxM, T> &)
+      { return maxN; }
+      static value_type& element(ZQOffsetMatrix<minN, maxN, minM, maxM, T> &A,
+                                 index_type i, index_type k)
+      { return A(i, k); }
+      static value_type element(const ZQOffsetMatrix<minN, maxN, minM, maxM, T> &A,
+                                index_type i, index_type k)
+      { return A(i, k); }
+    };
+
+    template <typename T>
+     inline void swap2(T& a, T& b)
+    {
+        T temp = a;
+        a = b;
+        b = temp;
+    }
      
-     
+    
+    /***************************
+     * Linear Algebra Routines *
+     ***************************/
+
+    // Gauss-Jordan Elimintation
+    // Given the matrix A, coefficient vector B and the the linear algebra equation A * [X <=> Y] = [B <=> I],
+    // returns the inverse of A, Y, in IA and the solutionn vector X. I being the identity matrix.
+/*TODO
+    template<typename MatrixType>
+     inline void gauss_jordan(const MatrixType& A, const MatrixType& B,
+        MatrixType &Y, MatrixType &X)
+    {
+        matrix_traits<MatrixType> mt;
+        typedef typename matrix_traits<MatrixType>::index_type index_type;
+        typedef typename matrix_traits<MatrixType>::value_type value_type;
+
+        assert(A.max_row() == A.max_column());
+        QGenericMatrix<1, A.max_row(), qreal> indxc, indxr, ipiv;
+        index_type i, icol, irow, j, k, l, ll;
+        value_type big, dum, pivinv, temp;
+
+    }  
+*/
+
     // Swap rows i and k of a matrix A
     // Note that due to the reference, both dimensions are preserved for
     // built-in arrays

@@ -388,7 +388,6 @@ namespace z_qtshapes {
     QDebug operator<<(QDebug dbg, const ZQPoint &p)
     {
         QDebugStateSaver saver(dbg);
-        dbg.nospace();
         dbg << p.toString();
         return dbg;
     }
@@ -396,7 +395,6 @@ namespace z_qtshapes {
     QDebug operator<<(QDebug dbg, const ZQPointF &p)
     {
         QDebugStateSaver saver(dbg);
-        dbg.nospace();
         dbg << p.toString();
         return dbg;
     }
