@@ -2,8 +2,6 @@
 #define Z_MATRIXTRAITS_H
 
 #include <cassert>
-#include <QGenericMatrix>
-#include <QMatrix4x4>
 #include "z_matrix.h"
 #include "z_offsetmatrix.h"
 
@@ -56,91 +54,11 @@ namespace z_linalg {
       { return A(i,k); }
       static value_type element(MatrixType const& A, index_type i, index_type k)
       { return A(i,k); }
-      static value_type *data(MatrixType const& A)
-      { value_type *a = A.data(); return a; }
-      static MatrixType fromData(value_type *d)
-      { return MatrixType(d); }
-      static ZQOffsetMatrix<1, max_row()+1, 1, max_column()+1, value_type> to1N(MatrixType const& A)
-      {return ZQOffsetMatrix<1, max_row()+1, 1, max_column()+1, value_type>(A.data()); }
-      static MatrixType from1N(ZQOffsetMatrix<1, max_row()+1, 1, max_column()+1, value_type> const& A)
-      {return MatrixType(A.data()); }
+      static void set_element(const MatrixType &A,
+                                index_type i, index_type k, value_type x)
+      { A.set(i, k, x); }
     };
 
-    // specialization of the matrix traits for built-in two-dimensional
-    // arrays
-    template<typename T, std::size_t rows, std::size_t columns>
-     struct matrix_traits<T[rows][columns]>
-    {
-      typedef std::size_t index_type;
-      typedef T value_type;
-      static index_type min_row(T const (&)[rows][columns])
-      { return 0; }
-      static index_type max_row(T const (&)[rows][columns])
-      { return rows-1; }
-      static index_type min_column(T const (&)[rows][columns])
-      { return 0; }
-      static index_type max_column(T const (&)[rows][columns])
-      { return columns-1; }
-      static value_type& element(T (&A)[rows][columns],
-                                 index_type i, index_type k)
-      { return A[i][k]; }
-      static value_type element(T const (&A)[rows][columns],
-                                index_type i, index_type k)
-      { return A[i][k]; }
-      static ZQOffsetMatrix<1, rows, 1, columns, value_type> to1N(T const (&A)[rows][columns])
-      { assert(false /* "Conversion from built-in array to ZQOffsetMatrix is not supported. Use one of the other array classes." */ ); return ZQOffsetMatrix<1, rows, 1, columns, value_type>(); }
-      static T* from1N(ZQOffsetMatrix<1, rows, 1, columns, value_type> const& A)
-      { assert(false /* "Conversion from ZQOffsetMatrix to built-in array is not supported. Use one of the other array classes." */ ); return nullptr; }
-    };
-
-    template<> struct matrix_traits<QMatrix4x4>
-    {
-      typedef int index_type;
-      typedef float value_type;
-      static index_type min_row(const QMatrix4x4 &)
-      { return 0; }
-      static index_type max_row(const QMatrix4x4 &)
-      { return 3; }
-      static index_type min_column(const QMatrix4x4 &)
-      { return 0; }
-      static index_type max_column(const QMatrix4x4 &)
-      { return 3; }
-      static value_type& element(QMatrix4x4 &A,
-                                 index_type i, index_type k)
-      { return A(i, k); }
-      static value_type element(const QMatrix4x4 &A,
-                                index_type i, index_type k)
-      { return A(i, k); }
-      static ZQOffsetMatrix<1, 4, 1, 4, value_type> to1N(QMatrix4x4 const& A)
-      { return ZQOffsetMatrix<1, 4, 1, 4, value_type>(A.data()); }
-      static QMatrix4x4 from1N(ZQOffsetMatrix<1, 4, 1, 4, value_type> const& A)
-      { return QMatrix4x4(A.data()); }
-    };
-
-    template <int N, int M, typename T>
-    struct matrix_traits<QGenericMatrix<N, M, T>>
-    {
-      typedef int index_type;
-      typedef T value_type;
-      static index_type min_row(const QGenericMatrix<N, M, T> &)
-      { return 0; }
-      static index_type max_row(const QGenericMatrix<N, M, T> &)
-      { return M-1; }
-      static index_type min_column(const QGenericMatrix<N, M, T> &)
-      { return 0; }
-      static index_type max_column(const QGenericMatrix<N, M, T> &)
-      { return N-1; }
-      static value_type& element(QGenericMatrix<N, M, T> &A,
-                                 index_type i, index_type k)
-      { return A(i, k); }
-      static value_type element(const QGenericMatrix<N, M, T> &A,
-                                index_type i, index_type k)
-      { return A(i, k); }
-      static ZQOffsetMatrix<1, M, 1, N, value_type> to1N(QGenericMatrix<N, M, T> const& A)
-      { return ZQOffsetMatrix<1, M, 1, N, value_type>(A.data()); }
-      static QGenericMatrix<N, M, T> from1N(ZQOffsetMatrix<1, M, 1, N, value_type> const& A)
-      { return QGenericMatrix<N, M, T>(A.data()); }
-    };
 
     template <int M, int N, typename T>
     struct matrix_traits<ZQMatrix<M, N, T>>
@@ -161,10 +79,9 @@ namespace z_linalg {
       static value_type element(const ZQMatrix<M, N, T> &A,
                                 index_type i, index_type k)
       { return A(i, k); }
-      static ZQOffsetMatrix<1, M, 1, N, value_type> to1N(ZQMatrix<M, N, T> const& A)
-      { return ZQOffsetMatrix<1, M, 1, N, value_type>(A.data()); }
-      static ZQMatrix<M, N, T> from1N(ZQOffsetMatrix<1, M, 1, N, value_type> const& A)
-      { return ZQMatrix<M, N, T>(A.data()); }
+      static void set_element(const ZQMatrix<M, N, T> &A,
+                                index_type i, index_type k, value_type x)
+      { A.set(i, k, x); }
     };
 
     template <int minM, int maxM, int minN, int maxN, typename T>
@@ -186,10 +103,9 @@ namespace z_linalg {
       static value_type element(const ZQOffsetMatrix<minM, maxM, minN, maxN, T> &A,
                                 index_type i, index_type k)
       { return A(i, k); }
-      static ZQOffsetMatrix<1, maxM-minM+1, 1, maxN-minN+1, value_type> to1N(ZQOffsetMatrix<minM, maxM, minN, maxN, T> const& A)
-      { return ZQOffsetMatrix<1, maxM-minM+1, 1, maxN-minN+1, value_type>(A.data()); }
-      static ZQOffsetMatrix<minM, maxM, minN, maxN, T> from1N(ZQOffsetMatrix<1, maxM-minM+1, 1, maxN-minN+1, value_type> const& A)
-      { return ZQOffsetMatrix<minM, maxM, minN, maxN, T>(A.data()); }
+      static void set_element(const ZQOffsetMatrix<minM, maxM, minN, maxN, T> &A,
+                                index_type i, index_type k, value_type x)
+      { A.set(i, k, x); }
     };
 
 }

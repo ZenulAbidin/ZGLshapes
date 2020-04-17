@@ -23,15 +23,6 @@ display values[col * (maxM-minM+1) + row]
 
 BOOST_AUTO_TEST_CASE(Z_MatrixTraits)
 {
-    qreal M[3][4] = { {  1, 2, -1,  -4 },
-                     {  2, 3, -1, -11 },
-                     { -2, 0, -3,  22 } };
-
-    QGenericMatrix<4, 3, qreal> M2(&std::array<qreal, 12>({
-        1, 2, -1, -4,
-        2, 3, -1, -11,
-        -2, 0, -3, 22})[0]);
-
     ZQMatrix<3, 4, qreal> M3(&std::array<qreal, 16>({
         1, 2, -1, -4,
         2, 3, -1, -11,
@@ -49,20 +40,8 @@ BOOST_AUTO_TEST_CASE(Z_MatrixTraits)
         -2, 0, -3, 22})[0]);
 
 
-    matrix_traits<qreal[3][4]> mt;
-    matrix_traits<QGenericMatrix<4, 3, qreal>> mt2;
     matrix_traits<ZQMatrix<3, 4, qreal>> mt3;
     matrix_traits<ZQOffsetMatrix<11, 13, 5, 8, qreal>> mt4;
-
-    BOOST_TEST(mt.min_row(M) == 0);
-    BOOST_TEST(mt.max_row(M) == 2);
-    BOOST_TEST(mt.min_column(M) == 0);
-    BOOST_TEST(mt.max_column(M) == 3);
-
-    BOOST_TEST(mt2.min_row(M2) == 0);
-    BOOST_TEST(mt2.max_row(M2) == 2);
-    BOOST_TEST(mt2.min_column(M2) == 0);
-    BOOST_TEST(mt2.max_column(M2) == 3);
 
     BOOST_TEST(mt3.min_row(M3) == 0);
     BOOST_TEST(mt3.max_row(M3) == 2);
@@ -74,8 +53,6 @@ BOOST_AUTO_TEST_CASE(Z_MatrixTraits)
     BOOST_TEST(mt4.min_column(M4) == 5);
     BOOST_TEST(mt4.max_column(M4) == 8);
 
-    BOOST_TEST(mt.element(M, 0, 0) == 1);
-    BOOST_TEST(mt2.element(M2, 0, 0) == 1);
     BOOST_TEST(mt3.element(M3, 0, 0) == 1);
     BOOST_TEST(mt4.element(M4, 11, 5) == 1);
 

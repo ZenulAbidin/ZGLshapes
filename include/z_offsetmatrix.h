@@ -30,6 +30,7 @@ namespace z_linalg {
 
         inline const T& operator()(int row, int column) const;
         inline T& operator()(int row, int column);
+        inline void set(int row, int column, T value);
 
         inline bool isIdentity() const;
         inline void setToIdentity();
@@ -138,16 +139,33 @@ namespace z_linalg {
     template <int minM, int maxM, int minN, int maxN, typename T>
     inline const T& ZQOffsetMatrix<minM, maxM, minN, maxN, T>::operator()(int row, int column) const
     {
-        assert(row >= minM && row <= maxM && column >= minN && column <= maxN);
+        assert(row >= minM /* "Row index is less than the allowed range" */);
+        assert(row <= maxM /* "Row index is greater than the allowed range" */);
+        assert(column >= minN /* "Column index is less than the allowed range" */);
+        assert(column <= maxN /* "Column index is greater than the allowed range" */);
         return m[column-minN][row-minM];
     }
 
     template <int minM, int maxM, int minN, int maxN, typename T>
     inline T& ZQOffsetMatrix<minM, maxM, minN, maxN, T>::operator()(int row, int column)
     {
-        assert(row >= minM && row <= maxM && column >= minN && column <= maxN);
+        assert(row >= minM /* "Row index is less than the allowed range" */);
+        assert(row <= maxM /* "Row index is greater than the allowed range" */);
+        assert(column >= minN /* "Column index is less than the allowed range" */);
+        assert(column <= maxN /* "Column index is greater than the allowed range" */);
         return m[column-minN][row-minM];
     }
+
+    template <int minM, int maxM, int minN, int maxN, typename T>
+    inline void ZQOffsetMatrix<minM, maxM, minN, maxN, T>::set(int row, int column, T value)
+    {
+        assert(row >= minM /* "Row index is less than the allowed range" */);
+        assert(row <= maxM /* "Row index is greater than the allowed range" */);
+        assert(column >= minN /* "Column index is less than the allowed range" */);
+        assert(column <= maxN /* "Column index is greater than the allowed range" */);
+        m[column-minN][row-minM] = value;
+    }
+
 
     template <int minM, int maxM, int minN, int maxN, typename T>
      inline bool ZQOffsetMatrix<minM, maxM, minN, maxN, T>::isIdentity() const

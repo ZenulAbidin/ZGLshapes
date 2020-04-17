@@ -4,17 +4,17 @@
 #include <initializer_list>
 #include <vector>
 #include <iostream>
-
+#include "z_matrix.h"
 #include "z_linalg.h"
 
 BOOST_AUTO_TEST_CASE(Z_LinAlg)
 {
     // If only QGenericMatrix could accept and return std::array...
-    QGenericMatrix<4, 3, qreal> A(&std::array<qreal, 12>({
+    z_linalg::ZQMatrix<3, 4, qreal> A(&std::array<qreal, 12>({
         1, 2, -1, -4,
         2, 3, -1, -11,
         -2, 0, -3, 22})[0]);
-    QGenericMatrix<4, 3, qreal> B = z_linalg::rref(A);
+    z_linalg::ZQMatrix<3, 4, qreal> B = z_linalg::rref(A);
     qreal *pb = B.data();
     std::vector<qreal> vb(pb, pb + 12);
     std::vector<qreal> va({1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1, -2});
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(Z_LinAlg)
     BOOST_TEST_MESSAGE("Rank");
     BOOST_TEST(z_linalg::rank(B) == 3);
 
-   QGenericMatrix<4, 3, qreal> C(&std::array<qreal, 12>({
+   z_linalg::ZQMatrix<3, 4, qreal> C(&std::array<qreal, 12>({
         1, 1, 1, 1,
         2, 2, 2, 2,
         -2, 0, -3, 22})[0]);

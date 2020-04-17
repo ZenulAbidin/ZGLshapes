@@ -31,6 +31,7 @@ namespace z_linalg {
 
         inline const T& operator()(int row, int column) const;
         inline T& operator()(int row, int column);
+        inline void set(int row, int column, T value);
 
         inline bool isIdentity() const;
         inline void setToIdentity();
@@ -134,15 +135,31 @@ namespace z_linalg {
     template <int M, int N, typename T>
     inline const T& ZQMatrix<M, N, T>::operator()(int row, int column) const
     {
-        assert(row >= 0 && row <= M && column >= 0 && column <= N);
+        assert(row >= 0 /* "Row index is less than the allowed range" */);
+        assert(row <= M /* "Row index is greater than the allowed range" */);
+        assert(column >= 0 /* "Column index is less than the allowed range" */);
+        assert(column <= N /* "Column index is greater than the allowed range" */);
         return m[column][row];
     }
 
     template <int M, int N, typename T>
     inline T& ZQMatrix<M, N, T>::operator()(int row, int column)
     {
-        assert(row >= 0 && row <= M && column >= 0 && column <= N);
+        assert(row >= 0 /* "Row index is less than the allowed range" */);
+        assert(row <= M /* "Row index is greater than the allowed range" */);
+        assert(column >= 0 /* "Column index is less than the allowed range" */);
+        assert(column <= N /* "Column index is greater than the allowed range" */);
         return m[column][row];
+    }
+
+    template <int M, int N, typename T>
+    inline void ZQMatrix<M, N, T>::set(int row, int column, T value)
+    {
+        assert(row >= 0 /* "Row index is less than the allowed range" */);
+        assert(row <= M /* "Row index is greater than the allowed range" */);
+        assert(column >= 0 /* "Column index is less than the allowed range" */);
+        assert(column <= N /* "Column index is greater than the allowed range" */);
+        m[column][row] = value;
     }
 
     template <int M, int N, typename T>

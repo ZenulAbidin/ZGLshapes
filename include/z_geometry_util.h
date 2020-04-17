@@ -3,14 +3,13 @@
 
 #include <array>
 #include <initializer_list>
-#include <QtWidgets>
-#include <QtGui>
+#include "z_matrix.h"
 #include "z_linalg.h"
 
 namespace z_geometry_util {
 
     bool isCollinear(const QPointF &a, const QPointF &b, const QPointF &c) {
-        QGenericMatrix<3, 2, qreal> m( &std::array<qreal, 6>({ a.x(), a.y(), b.x(), b.y(), c.x(), c.y() })[0] );
+        z_linalg::ZQMatrix<2, 3, qreal> m( &std::array<qreal, 6>({ a.x(), a.y(), b.x(), b.y(), c.x(), c.y() })[0] );
         if (z_linalg::rank(m) <= 1) {
             return true;
         }
