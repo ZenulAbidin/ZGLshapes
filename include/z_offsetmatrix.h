@@ -25,6 +25,9 @@ namespace z_linalg {
         inline ZQOffsetMatrix(const ZQOffsetMatrix<minM, maxM, minN, maxN, T>& other);
         explicit inline ZQOffsetMatrix(const T *values);
 
+        static inline ZQOffsetMatrix<1, maxM-minM+1, 1, maxN-minN+1, T> to1Based(const ZQOffsetMatrix<minM, maxM, minN, maxN, T> &A);
+        static inline ZQOffsetMatrix<minM, maxM, minN, maxN, T> from1Based(const ZQOffsetMatrix<1, maxM-minM+1, 1, maxN-minN+1, T> &A);
+
         inline const T& operator()(int row, int column) const;
         inline T& operator()(int row, int column);
 
@@ -110,6 +113,27 @@ namespace z_linalg {
             for (int col = 0; col <= maxN-minN; ++col)
                 m[col][row] = values[row * (maxN-minN+1) + col];
     }
+
+    template <int minM, int maxM, int minN, int maxN, typename T>
+     inline ZQOffsetMatrix<1, maxM-minM+1, 1, maxN-minN+1, T> ZQOffsetMatrix<minM, maxM, minN, maxN, T>::to1Based(const ZQOffsetMatrix<minM, maxM, minN, maxN, T> &A)
+    {
+        ZQOffsetMatrix<1, maxM-minM+1, 1, maxN-minN+1, T> B;
+        for (int row = 0; row <= maxM-minM; ++row)
+            for (int col = 0; col <= maxN-minN; ++col)
+                B.m[col][row] = A(row+minM, col+minN);
+        return B;
+    }
+
+    template <int minM, int maxM, int minN, int maxN, typename T>
+     inline ZQOffsetMatrix<minM, maxM, minN, maxN, T> ZQOffsetMatrix<minM, maxM, minN, maxN, T>::from1Based(const ZQOffsetMatrix<1, maxM-minM+1, 1, maxN-minN+1, T> &A)
+    {
+        ZQOffsetMatrix<minM, maxM, minN, maxN, T> B;
+        for (int row = 0; row <= maxM-minM; ++row)
+            for (int col = 0; col <= maxN-minN; ++col)
+                B.m[col][row] = A.m[col][row];
+        return B;
+    }
+
 
     template <int minM, int maxM, int minN, int maxN, typename T>
     inline const T& ZQOffsetMatrix<minM, maxM, minN, maxN, T>::operator()(int row, int column) const

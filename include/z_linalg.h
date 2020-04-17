@@ -6,141 +6,9 @@
 #include <cassert>
 
 #include <QtWidgets>
-#include <QGenericMatrix>
-#include "z_matrix.h"
-#include "z_offsetmatrix.h"
+#include "z_matrixtraits.h"
 
 namespace z_linalg {
-
-    // Matrix traits: This describes how a matrix is accessed. By
-    // externalizing this information into a traits class, the same code
-    // can be used both with native arrays and matrix classes. To use the
-    // default implementation of the traits class, a matrix type has to
-    // provide the following definitions as members:
-    //
-    // * typedef ... index_type;
-    //   - The type used for indexing (e.g. size_t)
-    // * typedef ... value_type;
-    //   - The element type of the matrix (e.g. double)
-    // * index_type min_row() const;
-    //   - returns the minimal allowed row index
-    // * index_type max_row() const;
-    //   - returns the maximal allowed row index
-    // * index_type min_column() const;
-    //   - returns the minimal allowed column index
-    // * index_type max_column() const;
-    //   - returns the maximal allowed column index
-    // * value_type& operator()(index_type i, index_type k)
-    //   - returns a reference to the element i,k, where
-    //     min_row() <= i <= max_row()
-    //     min_column() <= k <= max_column()
-    // * value_type operator()(index_type i, index_type k) const
-    //   - returns the value of element i,k
-    //
-    // Note that the functions are all inline and simple, so the compiler
-    // should completely optimize them away.
-    template<typename MatrixType> struct matrix_traits
-    {
-      typedef typename MatrixType::index_type index_type;
-      typedef typename MatrixType::value_type value_type;
-      static index_type min_row(MatrixType const& A)
-      { return A.min_row(); }
-      static index_type max_row(MatrixType const& A)
-      { return A.max_row(); }
-      static index_type min_column(MatrixType const& A)
-      { return A.min_column(); }
-      static index_type max_column(MatrixType const& A)
-      { return A.max_column(); }
-      static value_type& element(MatrixType& A, index_type i, index_type k)
-      { return A(i,k); }
-      static value_type element(MatrixType const& A, index_type i, index_type k)
-      { return A(i,k); }
-    };
-
-    // specialization of the matrix traits for built-in two-dimensional
-    // arrays
-    template<typename T, std::size_t rows, std::size_t columns>
-     struct matrix_traits<T[rows][columns]>
-    {
-      typedef std::size_t index_type;
-      typedef T value_type;
-      static index_type min_row(T const (&)[rows][columns])
-      { return 0; }
-      static index_type max_row(T const (&)[rows][columns])
-      { return rows-1; }
-      static index_type min_column(T const (&)[rows][columns])
-      { return 0; }
-      static index_type max_column(T const (&)[rows][columns])
-      { return columns-1; }
-      static value_type& element(T (&A)[rows][columns],
-                                 index_type i, index_type k)
-      { return A[i][k]; }
-      static value_type element(T const (&A)[rows][columns],
-                                index_type i, index_type k)
-      { return A[i][k]; }
-    };
-
-    template<> struct matrix_traits<QMatrix4x4>
-    {
-      typedef int index_type;
-      typedef float value_type;
-      static index_type min_row(const QMatrix4x4 &)
-      { return 0; }
-      static index_type max_row(const QMatrix4x4 &)
-      { return 3; }
-      static index_type min_column(const QMatrix4x4 &)
-      { return 0; }
-      static index_type max_column(const QMatrix4x4 &)
-      { return 3; }
-      static value_type& element(QMatrix4x4 &A,
-                                 index_type i, index_type k)
-      { return A(i, k); }
-      static value_type element(const QMatrix4x4 &A,
-                                index_type i, index_type k)
-      { return A(i, k); }
-    };
-
-    template <int N, int M, typename T>
-    struct matrix_traits<QGenericMatrix<N, M, T>>
-    {
-      typedef int index_type;
-      typedef T value_type;
-      static index_type min_row(const QGenericMatrix<N, M, T> &)
-      { return 0; }
-      static index_type max_row(const QGenericMatrix<N, M, T> &)
-      { return M-1; }
-      static index_type min_column(const QGenericMatrix<N, M, T> &)
-      { return 0; }
-      static index_type max_column(const QGenericMatrix<N, M, T> &)
-      { return N-1; }
-      static value_type& element(QGenericMatrix<N, M, T> &A,
-                                 index_type i, index_type k)
-      { return A(i, k); }
-      static value_type element(const QGenericMatrix<N, M, T> &A,
-                                index_type i, index_type k)
-      { return A(i, k); }
-    };
-
-    template <int minN, int maxN, int minM, int maxM, typename T>
-    struct matrix_traits<ZQOffsetMatrix<minN, maxN, minM, maxM, T>>
-    {
-      typedef int index_type;
-      typedef T value_type;
-      static index_type min_row(const ZQOffsetMatrix<minN, maxN, minM, maxM, T> &)
-      { return minM; }
-      static index_type max_row(const ZQOffsetMatrix<minN, maxN, minM, maxM, T> &)
-      { return maxM; }
-      static index_type min_column(const ZQOffsetMatrix<minN, maxN, minM, maxM, T> &)
-      { return minN; }
-      static index_type max_column(const ZQOffsetMatrix<minN, maxN, minM, maxM, T> &)
-      { return maxN; }
-      static value_type& element(ZQOffsetMatrix<minN, maxN, minM, maxM, T> &A,
-                                 index_type i, index_type k)
-      { return A(i, k); }
-      static value_type element(const ZQOffsetMatrix<minN, maxN, minM, maxM, T> &A,
-                                index_type i, index_type k)
-      { return A(i, k); }
-    };
 
     template <typename T>
      inline void swap2(T& a, T& b)
@@ -155,22 +23,42 @@ namespace z_linalg {
      * Linear Algebra Routines *
      ***************************/
 
-    // Gauss-Jordan Elimintation
+    // Gauss-Jordan elimintation with full pivoting
     // Given the matrix A, coefficient vector B and the the linear algebra equation A * [X <=> Y] = [B <=> I],
-    // returns the inverse of A, Y, in IA and the solutionn vector X. I being the identity matrix.
-/*TODO
+    // returns the inverse of A, Y, in IA and the solution vector X. I being the identity matrix.
+/*
     template<typename MatrixType>
-     inline void gauss_jordan(const MatrixType& A, const MatrixType& B,
+     inline void gauss_jordan_full(const MatrixType& A, const MatrixType& B,
         MatrixType &Y, MatrixType &X)
     {
         matrix_traits<MatrixType> mt;
         typedef typename matrix_traits<MatrixType>::index_type index_type;
         typedef typename matrix_traits<MatrixType>::value_type value_type;
 
+        Y = A;
+        X = B;
         assert(A.max_row() == A.max_column());
-        QGenericMatrix<1, A.max_row(), qreal> indxc, indxr, ipiv;
+        ZQOffsetMatrix<1, A.max_row(), 0, 0, qreal> indxc, indxr, ipiv;
         index_type i, icol, irow, j, k, l, ll;
         value_type big, dum, pivinv, temp;
+
+        for (j = 1; j <= n; j++) {
+            ipiv(j,0) = 0;
+        }
+        
+        for (i = 1; i <= n; i++) {
+            big = 0.0;
+            for (j = 1; j <= n; j++) {
+                if (ipiv(j,0) != 1) {
+                    for (k = 1; k <= n; k++) {
+                        if (ipiv(k,0) == 0) {
+//TODO Convert args to ZQOffsetMatrix.
+                            if (abs(a(j,k) 
+                        }
+                    }
+                }
+            }
+        }
 
     }  
 */

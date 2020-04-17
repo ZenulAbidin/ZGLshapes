@@ -103,6 +103,7 @@ int main() {
     system((std::string("tests/linalg/test_z_linalg") + boost_options).c_str());
     system((std::string("tests/linalg/test_z_matrix") + boost_options).c_str());
     system((std::string("tests/linalg/test_z_offsetmatrix") + boost_options).c_str());
+    system((std::string("tests/linalg/test_z_matrixtraits") + boost_options).c_str());
 #endif
 
     return 0;

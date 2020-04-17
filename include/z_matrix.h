@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include "z_offsetmatrix.h"
 
 namespace z_linalg {
 
@@ -24,6 +25,9 @@ namespace z_linalg {
         inline ZQMatrix();
         inline ZQMatrix(const ZQMatrix<M, N, T>& other);
         explicit inline ZQMatrix(const T *values);
+
+        static inline ZQOffsetMatrix<1, M, 1, N, T> to1Based(const ZQMatrix<M, N, T> &A);
+        static inline ZQMatrix<M, N, T> from1Based(const ZQOffsetMatrix<1, M, 1, N, T> &A);
 
         inline const T& operator()(int row, int column) const;
         inline T& operator()(int row, int column);
@@ -105,6 +109,26 @@ namespace z_linalg {
         for (int row = 0; row < M; ++row)
             for (int col = 0; col < N; ++col)
                 m[col][row] = values[row * (N) + col];
+    }
+
+    template <int M, int N, typename T>
+     inline ZQOffsetMatrix<1, M, 1, N, T> ZQMatrix<M, N, T>::to1Based(const ZQMatrix<M, N, T> &A)
+    {
+        ZQOffsetMatrix<1, M, 1, N, T> B;
+        for (int row = 0; row < M; ++row)
+            for (int col = 0; col < N; ++col)
+                B.m[col][row] = A(row, col);
+        return B;
+    }
+
+    template <int M, int N, typename T>
+     inline ZQMatrix<M, N, T> ZQMatrix<M, N, T>::from1Based(const ZQOffsetMatrix<1, M, 1, N, T> &A)
+    {
+        ZQMatrix<M, N, T> B;
+        for (int row = 0; row < M; ++row)
+            for (int col = 0; col < N; ++col)
+                B.m[col][row] = A.m[col][row];
+        return B;
     }
 
     template <int M, int N, typename T>
