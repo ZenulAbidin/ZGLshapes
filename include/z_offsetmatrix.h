@@ -37,12 +37,12 @@ namespace z_linalg {
 
         inline void fill(T value);
 
-        inline int min_row() const { return minM; }
-        inline int max_row() const { return maxM; }
-        inline int size_row() const { return maxM-minM+1; }
-        inline int min_column() const { return minN; }
-        inline int max_column() const { return maxN; }
-        inline int size_column() const { return maxN-minN+1; }
+        constexpr inline const int min_row() const { return minM; }
+        constexpr inline const int max_row() const { return maxM; }
+        constexpr inline const int size_row() const { return maxM-minM+1; }
+        constexpr inline const int min_column() const { return minN; }
+        constexpr inline const int max_column() const { return maxN; }
+        constexpr inline const int size_column() const { return maxN-minN+1; }
 
         inline ZQOffsetMatrix<minM, maxM, minN, maxN, T> transposed() const;
 
@@ -60,6 +60,8 @@ namespace z_linalg {
         inline const T *data() const { return *m; }
         inline const T *constData() const { return *m; }
 
+        template <int minM_, int maxM_, int minN_, int maxN_, int minM_2, int maxM_2, int minN_2, int maxN_2, typename T_2>
+         friend inline ZQOffsetMatrix<minM_, maxM_, minN_, maxN_, T_2> submatrix(const ZQOffsetMatrix<minM_2, maxM_2, minN_2, maxN_2, T_2>& m1, int row1, int row2, int col1, int col2);
 
         T m[maxN-minN+1][maxM-minM+1];    // Column-major order to match OpenGL.
 
@@ -334,6 +336,22 @@ namespace z_linalg {
         for (int row = 0; row <= maxM-minM; ++row)
             for (int col = 0; col <= maxN-minN; ++col)
                 values[row * (maxN-minN+1) + col] = T(m[col][row]);
+    }
+
+    template <int minM_, int maxM_, int minN_, int maxN_, int minM_2, int maxM_2, int minN_2, int maxN_2, typename T_2>
+     inline ZQOffsetMatrix<minM_, maxM_, minN_, maxN_, T_2> submatrix(const ZQOffsetMatrix<minM_2, maxM_2, minN_2, maxN_2, T_2>& m1, int row1, int row2, int col1, int col2)
+    {
+        assert(row1 >= minM_2 /* "Row subindex is less than the allowed range" */);
+        assert(row2 <= maxM_2 /* "Row subindex is greater than the allowed range" */);
+        assert(col1 >= minN_2 /* "Column subindex is less than the allowed range" */);
+        assert(col2 <= maxN_2 /* "Column subindex is greater than the allowed range" */);
+        assert(row1 <= row2 /* "Starting row subindex is greater than the ending subindex" */);
+        assert(col1 <= col2 /* "Starting column subindex is greater than the ending subindex" */);
+        ZQOffsetMatrix<minM_, maxM_, minN_, maxN_, T_2> A;
+        for (int row = row1; row <= row2; ++row)
+            for (int col = col1; col < col2; ++col)
+                A.m[col-col1][row-row1] = m1(row, col);
+        return A;
     }
 
 

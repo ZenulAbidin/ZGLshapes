@@ -46,10 +46,14 @@ namespace z_linalg {
       { return A.min_row(); }
       static index_type max_row(MatrixType const& A)
       { return A.max_row(); }
+      static index_type size_row(MatrixType const& A)
+      { return A.size_row(); }
       static index_type min_column(MatrixType const& A)
       { return A.min_column(); }
       static index_type max_column(MatrixType const& A)
       { return A.max_column(); }
+      static index_type size_column(MatrixType const& A)
+      { return A.size_column(); }
       static value_type& element(MatrixType& A, index_type i, index_type k)
       { return A(i,k); }
       static value_type element(MatrixType const& A, index_type i, index_type k)
@@ -69,10 +73,14 @@ namespace z_linalg {
       { return 0; }
       static index_type max_row(const ZQMatrix<M, N, T> &)
       { return M-1; }
+      static index_type size_row(const ZQMatrix<M, N, T> &)
+      { return M; }
       static index_type min_column(const ZQMatrix<M, N, T> &)
       { return 0; }
       static index_type max_column(const ZQMatrix<M, N, T> &)
       { return N-1; }
+      static index_type size_column(const ZQMatrix<M, N, T> &)
+      { return N; }
       static value_type& element(ZQMatrix<M, N, T> &A,
                                  index_type i, index_type k)
       { return A(i, k); }
@@ -93,10 +101,14 @@ namespace z_linalg {
       { return minM; }
       static index_type max_row(const ZQOffsetMatrix<minM, maxM, minN, maxN, T> &)
       { return maxM; }
+      static index_type size_row(const ZQOffsetMatrix<minM, maxM, minN, maxN, T> &)
+      { return maxM-minM+1; }
       static index_type min_column(const ZQOffsetMatrix<minM, maxM, minN, maxN, T> &)
       { return minN; }
       static index_type max_column(const ZQOffsetMatrix<minM, maxM, minN, maxN, T> &)
       { return maxN; }
+      static index_type size_column(const ZQOffsetMatrix<minM, maxM, minN, maxN, T> &)
+      { return maxN-minN+1; }
       static value_type& element(ZQOffsetMatrix<minM, maxM, minN, maxN, T> &A,
                                  index_type i, index_type k)
       { return A(i, k); }
