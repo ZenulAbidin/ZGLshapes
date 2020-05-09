@@ -16,6 +16,9 @@ BOOST_AUTO_TEST_CASE(Z_OffsetMatrix)
         2,	13,	8,	11,
         16,	3,	10,	5,
         9, 	6,	15,	4})[0]);
+    ZQOffsetMatrix<12, 13, 6, 7, qreal> Asub(&std::array<qreal, 4>({
+        13,	8,
+        3,	10})[0]);
    ZQOffsetMatrix<11, 14, 5, 8, qreal> AA(&std::array<qreal, 16>({
         7,	12,	1,	14,
         2,	13,	8,	11,
@@ -190,6 +193,14 @@ BOOST_AUTO_TEST_CASE(Z_OffsetMatrix)
     }
     DD.fill(1);
     if (DD == U2) {
+        BOOST_TEST(true);
+    }
+    else {
+        BOOST_TEST(false);
+    }
+
+    auto Atemp = submatrix<12,13,6,7>(A, 12,13,6,7);
+    if (Atemp == Asub) {
         BOOST_TEST(true);
     }
     else {

@@ -60,8 +60,24 @@ namespace z_linalg {
         inline const T *data() const { return *m; }
         inline const T *constData() const { return *m; }
 
-        template <int minM_, int maxM_, int minN_, int maxN_, int minM_2, int maxM_2, int minN_2, int maxN_2, typename T_2>
-         friend inline ZQOffsetMatrix<minM_, maxM_, minN_, maxN_, T_2> submatrix(const ZQOffsetMatrix<minM_2, maxM_2, minN_2, maxN_2, T_2>& m1, int row1, int row2, int col1, int col2);
+        template <int minM_, int maxM_, int minN_, int maxN_>
+         friend inline ZQOffsetMatrix<minM_, maxM_, minN_, maxN_, T> submatrix(const ZQOffsetMatrix<minM, maxM, minN, maxN, T>& m1, int row1, int row2, int col1, int col2) {
+            assert(row1 == minM_ /* "Starting row subindex is different from supplied starting row dimension" */);
+            assert(row2 == maxM_ /* "Ending row subindex is different from supplied ending row dimension" */);
+            assert(col1 == minN_ /* "Starting column subindex is different from supplied starting column dimension" */);
+            assert(col2 == maxN_ /* "Ending column subindex is different from supplied ending column dimension" */);
+            assert(minM_ >= minM /* "Row dimension is less than the allowed range" */);
+            assert(maxM_ <= maxM /* "Row dimension is greater than the allowed range" */);
+            assert(minN_ >= minN /* "Column dimension is less than the allowed range" */);
+            assert(maxN_ <= maxN /* "Column dimension is greater than the allowed range" */);
+            assert(row1 <= row2 /* "Starting row subindex is greater than the ending subindex" */);
+            assert(col1 <= col2 /* "Starting column subindex is greater than the ending subindex" */);
+            ZQOffsetMatrix<minM_, maxM_, minN_, maxN_, T> A;
+            for (int row = row1; row <= row2; ++row)
+                for (int col = col1; col <= col2; ++col)
+                    A.m[col-col1][row-row1] = m1.m[col-minN][row-minM];
+            return A;
+        }
 
         T m[maxN-minN+1][maxM-minM+1];    // Column-major order to match OpenGL.
 
@@ -337,23 +353,6 @@ namespace z_linalg {
             for (int col = 0; col <= maxN-minN; ++col)
                 values[row * (maxN-minN+1) + col] = T(m[col][row]);
     }
-
-    template <int minM_, int maxM_, int minN_, int maxN_, int minM_2, int maxM_2, int minN_2, int maxN_2, typename T_2>
-     inline ZQOffsetMatrix<minM_, maxM_, minN_, maxN_, T_2> submatrix(const ZQOffsetMatrix<minM_2, maxM_2, minN_2, maxN_2, T_2>& m1, int row1, int row2, int col1, int col2)
-    {
-        assert(row1 >= minM_2 /* "Row subindex is less than the allowed range" */);
-        assert(row2 <= maxM_2 /* "Row subindex is greater than the allowed range" */);
-        assert(col1 >= minN_2 /* "Column subindex is less than the allowed range" */);
-        assert(col2 <= maxN_2 /* "Column subindex is greater than the allowed range" */);
-        assert(row1 <= row2 /* "Starting row subindex is greater than the ending subindex" */);
-        assert(col1 <= col2 /* "Starting column subindex is greater than the ending subindex" */);
-        ZQOffsetMatrix<minM_, maxM_, minN_, maxN_, T_2> A;
-        for (int row = row1; row <= row2; ++row)
-            for (int col = col1; col < col2; ++col)
-                A.m[col-col1][row-row1] = m1(row, col);
-        return A;
-    }
-
 
     template <int minM, int maxM, int minN, int maxN, typename T>
      inline bool ZQOffsetMatrix<minM, maxM, minN, maxN, T>::operator==(const ZQOffsetMatrix<minM, maxM, minN, maxN, T>& other) const

@@ -61,8 +61,22 @@ namespace z_linalg {
         inline const T *data() const { return *m; }
         inline const T *constData() const { return *m; }
 
-        template<int M_, int N_, int M_2, int N_2, typename T_2>
-         friend inline ZQMatrix<M_, N_, T_2> submatrix(ZQMatrix<M_2, N_2, T_2> m1, int row1, int row2, int col1, int col2);
+        template<int M_, int N_>
+         friend inline ZQMatrix<M_, N_, T> submatrix(ZQMatrix<M, N, T> m1, int row1, int row2, int col1, int col2) {
+            assert(row1 >= 0 /* "Row subindex is less than the allowed range" */);
+            assert(row2 < M /* "Row subindex is greater than the allowed range" */);
+            assert(col1 >= 0 /* "Column subindex is less than the allowed range" */);
+            assert(col2 < N /* "Column subindex is greater than the allowed range" */);
+            assert(row1 <= row2 /* "Starting row subindex is greater than the ending subindex" */);
+            assert(col1 <= col2 /* "Starting column subindex is greater than the ending subindex" */);
+            assert(row2-row1+1 == M_ /* "row slice does not equal supplied row dimension" */);
+            assert(col2-col1+1 == N_ /* "column slice does not equal supplied column dimension" */);
+            ZQMatrix<M_, N_, T> A;
+            for (int row = row1; row <= row2; ++row)
+                for (int col = col1; col <= col2; ++col)
+                    A.m[col-col1][row-row1] = m1.m[col][row];
+            return A;
+        }
 
 
         T m[N][M];    // Column-major order to match OpenGL.
@@ -341,22 +355,6 @@ namespace z_linalg {
         for (int row = 0; row < M; ++row)
             for (int col = 0; col < N; ++col)
                 values[row * (N) + col] = T(m[col][row]);
-    }
-
-    template<int M_, int N_, int M_2, int N_2, typename T_2>
-     inline ZQMatrix<M_, N_, T_2> submatrix(ZQMatrix<M_2, N_2, T_2> m1, int row1, int row2, int col1, int col2)
-    {
-        assert(row1 >= 0 /* "Row subindex is less than the allowed range" */);
-        assert(row2 <= M_2 /* "Row subindex is greater than the allowed range" */);
-        assert(col1 >= 0 /* "Column subindex is less than the allowed range" */);
-        assert(col2 <= N_2 /* "Column subindex is greater than the allowed range" */);
-        assert(row1 <= row2 /* "Starting row subindex is greater than the ending subindex" */);
-        assert(col1 <= col2 /* "Starting column subindex is greater than the ending subindex" */);
-        ZQMatrix<M_, N_, T_2> A;
-        for (int row = row1; row <= row2; ++row)
-            for (int col = col1; col < col2; ++col)
-                A.m[col-col1][row-row1] = m1(row, col);
-        return A;
     }
 
 
