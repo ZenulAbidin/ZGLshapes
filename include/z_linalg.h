@@ -23,6 +23,20 @@ namespace z_linalg {
         b = temp;
     }
 
+    // Tests for equality within range of eps. Adjust eps depending on the type.
+    // numbers that are close by a difference of exactly eps are considered unequal.
+    // Don't set eps to zero.
+    template <typename T>
+     inline bool fuzzy_equal(T& a, T& b, T eps = 1e-20)
+    {
+        if (abs(abs(a)-abs(b)) < eps) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     /*
      * Indexes an array arr[1..n] i.e. outputs the array indx[1..n] such that arr[indx[j]] is in ascending
      * order for j = 1, 2, ..., N. The input arr is not changed.
@@ -1950,11 +1964,90 @@ namespace z_linalg {
         }
 
         for (j=i; j<=n; j++) {
-            // Premultiplyrby Jacobi rotation.
+            // Premultiply r by Jacobi rotation.
             y = r(i,j);
             w = r(i+1, j);
             r(i,j) = c*y - s*w;
             r(i+1,j) = s*y + c*w;
+        }
+        return true;
+    }
+
+    /*
+     * Carry out a Jacobi rotation on rows and columns p and q of a matrix r[1..n][1..n].
+     */
+    template<int n, typename T>
+     inline bool jacobi_rotate_basic_zq(ZQOffsetMatrix<1, n, 1, n, T> &a,
+        int p, int q, std::string &error)
+    {
+        int i;
+        T c, s, theta, x;
+        T app = a(p,p);
+        T aqq = a(q,q);
+        T apq = a(p,q);
+        T aqp = a(q,p);
+        ZQOffsetMatrix<1, q-p+1, 0, 0, T> vp, vq;
+
+        x = ((aqq - app)/(apq*aqp))/2;
+        if (x == 0.0) {
+            theta = M_PI/2;
+        } else {
+            theta = atan(1/x);
+        }
+        fact = sign(1/(abs(theta) + sqrt(theta*theta) + 1), theta);
+        c = 1.0/sqrt(1.0+fact*fact);
+        s = fact*c;
+
+        for (i=p; i<=q; i++) {
+            //a(i,p) = a(p,p)*c+a(p,q)*-s;
+            //a(i,q) = a(q,p)*s+a(q,q)*c;
+            vp(i-p+1, 0) = a(p,i)*c + a(q,i) * -s;
+            vq(i-p+1, 0) = a(p,i)*s + a(q,i)*c;
+        }
+        for (i=p; i<=q; i++) {
+            a(i,p) = vp(i-p+1, 0);
+            a(i,q) = vq(i-p+1, 0);
+        }
+        return true;
+    }
+
+    /*
+     * Applies the transformation A′ = PTpq · A · Ppq to a matrix a[1..n][1..n], where Ppq is the
+     * Jacobi rotation on rows and columns p and q of A.
+     */
+    template<int n, typename T>
+     inline bool jacobi_rotate_transform_zq(ZQOffsetMatrix<1, n, 1, n, T> &a,
+        int p, int q, std::string &error)
+    {
+        int i;
+        T c, s, theta, x;
+        T app = a(p,p);
+        T aqq = a(q,q);
+        T apq = a(p,q);
+        T aqp = a(q,p);
+        ZQOffsetMatrix<1, q-p+1, 0, 0, T> vt, vb, vl2, vr2;
+
+        x = ((aqq - app)/(apq*aqp))/2;
+        if (x == 0.0) {
+            theta = M_PI/2;
+        } else {
+            theta = atan(1/x);
+        }
+        fact = sign(1/(abs(theta) + sqrt(theta*theta) + 1), theta);
+        c = 1.0/sqrt(1.0+fact*fact);
+        s = fact*c;
+
+        for (i=p; i<=q; i++) {
+            vt(i-p+1, 0) = a(i,p)*c + a(i,q)*-s;
+            vb(i-p+1, 0) = a(i,p)*s + a(i,q)*c;
+        }
+        for (i=p; i<=q; i++) {
+            vl2(i-p+1, 0) = vt(p-p+1,i)*c + vt(q-p+1,i) * -s;
+            vr2(i-p+1, 0) = vb(p-p+1,i)*s + vb(q-p+1,i)*c;
+        }
+        for (i=p; i<=q; i++) {
+            a(i,p) = vl2(i-p+1, 0);
+            a(i,q) = vr2(i-p+1, 0);
         }
         return true;
     }
@@ -2009,6 +2102,379 @@ namespace z_linalg {
             // Transform upper Hessenberg matrix to upper triangular.
             jacobi_rotate_2(r, qt, i, r(i,i), -r(i+1, i));
         }
+    }
+
+    /*
+     * Computes all eigenvalues and eigenvectors of a real symmetric matrix a[1..n][1..n]. On output,
+     * elements of a above the diagonal are destroyed. d[1..n] returns the eigenvalues of a. v[1..n][1..n]
+     * is a matrix whose columns contain, on output, the normalized eigenvectors of a. nrot returns the number
+     * of Jacobi rotations that were required.
+     */
+    template<int n, typename T>
+     inline bool eigen_jacobi_sym_zq(ZQOffsetMatrix<1, n, 1, n, T> &a, ZQOffsetMatrix<1, n, 0, 0, T> &d,
+        ZQOffsetMatrix<1, n, 1, n, T> &v, int &nrot, std::string &error)
+    {
+        int j, iq, ip, i;
+        T thresh, theta, tau, t, sm, s, h, g, c;
+        ZQOffsetMatrix<1, n, 0, 0, T> b, z;
+
+        // Initialize to identity matrix.  
+        for (ip=1; iq<=n; iq++) {
+            for (iq=1; iq<=n; iq++) {
+                v(ip,iq) = 0.0;
+            }
+            v(ip,ip) = 1.0;
+        }
+
+        // Initialize b and d to the diagonal of a.
+        for (ip=1; ip<=n; ip++) {
+            b(ip,0) = d(ip,0) = a(ip,ip);
+            z(ip,0) = 0;  // This vector will accumulate terms of the form ta_{pq}
+        }
+
+        nrot = 0;
+        for (i=1; i<=50; i++) {
+            sm = 0.0;
+            // Sum off-diagonal elements.
+            for (ip=1; ip<=n-1; ip++) {
+                for (iq=ip+1; iq<=n; iq++) {
+                    sm += abs(a(ip,iq));
+                }
+            }
+            if (sm == 0.0) {
+                // The normal return, which relieson quadratic convergence to machine underflow.
+                return true;
+            }
+            if (i < 4) {
+                thresh = 0.2*sm/(n*n); // ... on the first three sweeps.
+            }
+            else {
+                thresh = 0.0;   // ... thereafter.
+            }
+            for (ip=1; ip<=n-1; ip++) {
+                for (iq=ip+1; iq<=n; iq++) {
+                    g = 100.0*abs(a(ip,iq));
+                    // After four sweeps, skip the rotation if the off-diagonal element is small.
+                    if (i > 4 && fuzzy_equal(abs(d(ip,0) + g), abs(d(ip, 0))) &&
+                     fuzzy_equal(abs(d(iq,0) + g), abs(d(iq, 0))) {
+                        a(ip, iq) = 0.0;
+                    }
+                    else if (abs(a(ip,iq)) > thresh) {
+                        h = d(iq,0) - d(ip,0);
+                        if fuzzy_equal((abs(h) + g, abs(h))) {
+                            t = a(ip,iq)/h;     // t=1/(2θ)
+                        }
+                        else {
+                            theta = 0.5*h/(a(ip,iq));
+                            t = 1.0/(abs(theta) + sqrt(1.0 + theta*theta));
+                            if (theta < 0.0) {
+                                t = -t;
+                            }
+                        }
+                        c=1.0/sqrt(1+t*t);
+                        s=t*c;
+                        tau=s/(1.0+c);
+                        h=t*a(ip,iq);
+                        z(ip,0) -= h;
+                        z(iq,0) += h;
+                        d(ip,0) -= h;
+                        d(iq,0) += h;
+                        a(ip,iq) = 0.0;
+                        for (j=1; j<=ip-1; j++) {
+                            // Case of rotations 1≤j<p
+                            g=a(j,ip);
+                            h=a(j,iq);
+                            a(j,ip) = g-s*(h+g*tau);
+                            a(j,iq) = h+s*(g-h*tau);
+                        }
+                        for (j=ip+1; j<=iq-1; j++) {
+                            // Case of rotations p<j<q.
+                            g=a(ip,j);
+                            h=a(j,iq);
+                            a(ip,j) = g-s*(h+g*tau);
+                            a(j,iq) = h+s*(g-h*tau);
+                        }
+                        for (j=iq+1; j<=n; j++) {
+                            // Case of rotations p<j<q.
+                            g=a(ip,j);
+                            h=a(iq,j);
+                            a(ip,j) = g-s*(h+g*tau);
+                            a(iq,j) = h+s*(g-h*tau);
+                        }
+                        for (j=1; j<=n; j++) {
+                            g=v(j,ip);
+                            h=v(j,iq);
+                            v(j,ip) = g-s*(h+g*tau);
+                            v(j,iq) = h+s*(g-h*tau);
+                        }
+                        ++nrot;
+                    }
+                }
+            }
+            for (ip=1; ip<=n; ip++) {
+                b(ip,0) += z(ip,0);
+                d(ip,0) = b(ip,0);  // Update d with the sum ofta_{pq},
+                z(ip,0) = 0.0;      // and reinitialize z.
+            }
+        }
+
+        error = std::string("eigen_jacobi_sym too many iterations");
+        return false;
+    }
+
+    /*
+     * Given the eigenvalues d[1..n] and eigenvectors v[1..n][1..n] as output from jacobi eigenvalue functions,
+     * this routine sorts the eigenvalues into descending order, and rearranges the columns of v correspondingly.
+     * The method is straight insertion.
+     */
+    template<int n, typename T>
+     inline bool eigen_sort_zq(ZQOffsetMatrix<1, n, 0, 0, T> &d, ZQOffsetMatrix<1, n, 1, n, T> &v,
+        std::string &error)
+    {
+        int k, j, i;
+        T p;
+
+        for(i=1; i<n; i++) {
+            k=i;
+            p = d(k,0);
+            for (j=i+1; j<=n; j++) {
+                if (d(j, 0) >= p) {
+                    k=j;
+                    p = d(k,0);
+                }
+            }
+            if (k != i) {
+                d(k,0) = d(i,0);
+                d(i,0) = p;
+                for (j=1; j<=n; j++) {
+                    p = v(j,i);
+                    v(j,i) = v(j,k);
+                    v(j,k) = p;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Returns the L1 norm of w
+    template<int n, typename T>
+     inline bool l1_norm_zq(ZQOffsetMatrix<1, n, 0, 0, T> &w, T &norm, std::string &error)
+    {
+        T x = 0;
+        int i;
+        for (i = 1; i <= n; i++) {
+            x += abs(w(i,0));
+        norm = x;
+        return true;
+    }
+
+    // Returns the L2 norm of w
+    template<int n, typename T>
+     inline bool l2_norm_zq(ZQOffsetMatrix<1, n, 0, 0, T> &w, T &norm, std::string &error)
+    {
+        T x = 0;
+        int i;
+        for (i = 1; i <= n; i++) {
+            x += w(i,0) * w(i,0);
+        }
+        norm = sqrt(x);
+        return true;
+    }
+
+    // Returns the L∞ norm of w
+    template<int n, typename T>
+     inline bool linf_norm_zq(ZQOffsetMatrix<1, n, 0, 0, T> &w, T &norm, std::string &error)
+    {
+        T x = 0;
+        int i;
+        for (i = 1; i <= n; i++) {
+            x = max(x, w(i,0));
+        }
+        norm = x;
+        return true;
+    }
+
+    // Constructs a householder matrix from a vector w where |w|^2 = 1.
+    template<int n, typename T>
+     inline bool householder_zq(ZQOffsetMatrix<1, n, 0, 0, T> &w, ZQOffsetMatrix<1, n, 1, n, T> &p, std::string &error)
+    {
+        ZQOffsetMatrix<1, n, 0, 0, T> r;
+        r.setToIdentity();
+        return r - (2*w) * transpose(w);
+    }
+
+    /*
+     * Householder reduction of a real, symmetric matrix a[1..n][1..n]. On output, a is replaced by the
+     * orthogonal matrix Q effecting the transformation. d[1..n] returns the diagonal ele-ments of the
+     * tridiagonal matrix, and e[1..n] the off-diagonal elements, with e[1]=0.
+     * Use this routine if you only want to find the eigenvalues.
+     */
+    template<int n, typename T>
+     inline bool trireduction_zq(ZQOffsetMatrix<1, n, 1, n, T> &a, ZQOffsetMatrix<1, n, 0, 0, T> &d,
+        ZQOffsetMatrix<1, n, 0, 0, T> &e, std::string &error)
+    {
+        int l, k, j, i;
+        T scale, hh, h, g, f;
+        for (i=n; i>=2; i++) {
+            l=i-1;
+            h = scale = 0.0;
+            if (l > 1) {
+                for (k=1; k<=l; k++) {
+                    scale += abs(a(i,k));
+                }
+                if (scale == 0.0) {
+                    // Skip transformation.
+                    e(i,0) = a(i,l);
+                }
+                else {
+                    for (k=1; k<=l; k++) {
+                        // Use scaled a's for transformation.
+                        a(i,k) /= scale;
+                        // Form σ in h.
+                        h += a(i,k) * a(i,k);
+                    }
+                    f = a(i,l);
+                    g = (f >= 0 ? -sqrt(h) : sqrt(h));
+                    e(i,0) = scale*g;
+                    h -= f*g;
+                    // Store u in ith row of a.
+                    a(i,l) = f-g;
+
+                    f = 0.0;
+                    for (j=1; j<=l; j++) {
+                        // Form an element of A·u in g.
+                        g = 0.0;
+                        for (k=1; k<=j; k++) {
+                            g += a(j,k) * a(i,k);
+                        }
+                        for (k=j+1; k<=l; k++) {
+                            g += a(k,j) * a(i,k);
+                        }
+                        // Form element of p in temporarily unused element of e.
+                        e(j,0) = g/h;
+                        f += e(j,0) + a(i,j);
+                    }
+                    hh = f/(h+h);   // Form K
+                    for (j=1; j<=l; j++) {
+                        // Form q and store in e overwriting p.
+                        f = a(i,j);
+                        e(j,0) = g = e(j,0) - hh*f;
+                        for (k=1; k<=j; k++) {
+                            // Reduce a
+                            a(j,k) -= (f*e(k,0) + g*a(i,k));
+                        }
+                    }
+                }
+            }
+            else {
+                e(i,0) = a(i,l);
+            }
+            d(i,0) = h;
+        }
+
+        e(1,0) = 0.0;
+        for (i=1; i<=n; i++) {
+            d(i,0) = a(i,i);
+        }
+        return true;
+    }
+
+    /*
+     * Householder reduction of a real, symmetric matrixa[1..n][1..n]. On output, a is replaced by the
+     * orthogonal matrix Q effecting the transformation. d[1..n] returns the diagonal ele-ments of the
+     * tridiagonal matrix, and e[1..n] the off-diagonal elements, with e[1]=0.
+     * Use this routine if you want to find the eigenvalues and eigenvectors.
+     */
+    template<int n, typename T>
+     inline bool trireduction_eigvec_zq(ZQOffsetMatrix<1, n, 0, 0, T> &a, ZQOffsetMatrix<1, n, 0, 0, T> &d,
+        ZQOffsetMatrix<1, n, 0, 0, T> &e, std::string &error)
+    {
+        int l, k, j, i;
+        T scale, hh, h, g, f;
+        for (i=n; i>=2; i++) {
+            l=i-1;
+            h = scale = 0.0;
+            if (l > 1) {
+                for (k=1; k<=l; k++) {
+                    scale += abs(a(i,k));
+                }
+                if (scale == 0.0) {
+                    // Skip transformation.
+                    e(i,0) = a(i,l);
+                }
+                else {
+                    for (k=1; k<=l; k++) {
+                        // Use scaled a's for transformation.
+                        a(i,k) /= scale;
+                        // Form σ in h.
+                        h += a(i,k) * a(i,k);
+                    }
+                    f = a(i,l);
+                    g = (f >= 0 ? -sqrt(h) : sqrt(h));
+                    e(i,0) = scale*g;
+                    h -= f*g;
+                    // Store u in ith row of a.
+                    a(i,l) = f-g;
+
+                    f = 0.0;
+                    for (j=1; j<=l; j++) {
+                        // Store u/H in ith column of a.
+                        a(j,i) = a(i,j)/h;
+                        // Form an element of A·u in g.
+                        g = 0.0;
+                        for (k=1; k<=j; k++) {
+                            g += a(j,k) * a(i,k);
+                        }
+                        for (k=j+1; k<=l; k++) {
+                            g += a(k,j) * a(i,k);
+                        }
+                        // Form element of p in temporarily unused element of e.
+                        e(j,0) = g/h;
+                        f += e(j,0) + a(i,j);
+                    }
+                    hh = f/(h+h);   // Form K
+                    for (j=1; j<=l; j++) {
+                        // Form q and store in e overwriting p.
+                        f = a(i,j);
+                        e(j,0) = g = e(j,0) - hh*f;
+                        for (k=1; k<=j; k++) {
+                            // Reduce a
+                            a(j,k) -= (f*e(k,0) + g*a(i,k));
+                        }
+                    }
+                }
+            }
+            else {
+                e(i,0) = a(i,l);
+            }
+            d(i,0) = h;
+        }
+
+        d(1,0) = 0.0;
+        for (i=1; i<=n; i++) {
+            // Begin accumulation of transformation matrices.
+            l = i-1;
+            if (d(i,0)) {
+                // This block skipped when i=1.
+                for (j=1; j<=l; j++) {
+                    g = 0.0;
+                    for (k=1; k<=l; k++) {
+                        // Use u and u/H stored in a to form P·Q.
+                        g += a(i,k) * a(k,j);
+                    }
+                    for (k=1; k<=l; k++) {
+                        a(k,j) -= g*a(k,i);
+                    }
+                }
+            }
+            d(i,0) = a(i,i);
+            // Reset row and column of a to identity matrix for next iteration.
+            a(i,i) = 1.0;
+            for (j=1; j<=l; j++) {
+                a(j,i) = a(i,j) = 0.0;
+            }
+        }
+        return true;
     }
 
     //
@@ -2353,6 +2819,23 @@ namespace z_linalg {
         return ret;
     }
 
+    template<typename MatrixType>
+     inline bool is_symmetric(const MatrixType& A) {
+        MatrixType AA = A;
+        std::string errror;
+        transpose(A, AA, error);
+        return A == AA;
+    }
+
+    template<typename MatrixType>
+     inline bool is_orthogonal(const MatrixType& A) {
+        std::string errror;
+        typedef typename matrix_traits<MatrixType>::value_type value_type;
+
+        value_type x;
+        determinant(A, &x, error);
+        return abs(x) == 1.0;
+    }
 
     template<typename MatrixType>
      inline bool tridiag_solve(const MatrixType& A, const MatrixType& B, const MatrixType& C,
