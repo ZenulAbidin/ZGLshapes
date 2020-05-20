@@ -79,6 +79,25 @@ namespace z_linalg {
             return A;
         }
 
+       template<maxM_, maxN_>
+         friend inline ZQOffsetMatrix<minM, maxM_, minN, maxN_, T> concat(ZQOffsetMatrix<minM, maxM, minN, maxN, T> m1, ZQOffsetMatrix<minM, maxM_-maxM, minN, maxN_-maxN, T> m2,
+            T fillval=0.0) {
+            assert(M_ > M /* "concatenated row size is less than original row size" */);
+            assert(N_ > N /* "concatenated column size is less than original column size" */);
+            ZQOffsetMatrix<minM, maxM_, minN, maxN_, T> A;
+            A.fill(fillval);
+            for (int row = 0; row <= maxM-minM; ++row) {
+                for (int col = 0; col <= maxN-minN; ++col)
+                    A.m[col][row] = m1.m[col][row];
+            }
+            for (int row = 0; row <= maxM_-maxM; ++row) {
+                for (int col = 0; col <= maxN_-maxN; ++col)
+                    A.m[col+N][row+M] = m2.m[col][row];
+            }
+            return A;
+        }
+
+
         T m[maxN-minN+1][maxM-minM+1];    // Column-major order to match OpenGL.
 
         explicit inline ZQOffsetMatrix(int) {}       // Construct without initializing identity matrix.

@@ -2386,7 +2386,7 @@ namespace z_linalg {
      * Use this routine if you want to find the eigenvalues and eigenvectors.
      */
     template<int n, typename T>
-     inline bool trireduction_eigvec_zq(ZQOffsetMatrix<1, n, 0, 0, T> &a, ZQOffsetMatrix<1, n, 0, 0, T> &d,
+     inline bool trireduction_eigvec_zq(ZQOffsetMatrix<1, n, 1, n, T> &a, ZQOffsetMatrix<1, n, 0, 0, T> &d,
         ZQOffsetMatrix<1, n, 0, 0, T> &e, std::string &error)
     {
         int l, k, j, i;
@@ -2473,6 +2473,467 @@ namespace z_linalg {
             for (j=1; j<=l; j++) {
                 a(j,i) = a(i,j) = 0.0;
             }
+        }
+        return true;
+    }
+
+
+    /*
+     * QL algorithm with implicit shifts, to determine the eigenvalues and eigenvectors of a real, symmetric,
+     * tridiagonal matrix, or of a real, symmetric matrix previously reduced by trireduction_zq. On input, d[1..n]
+     * contains the diagonal elements of the tridiagonal matrix. On output, it returnsthe eigenvalues. The vector
+     * e[1..n] inputs the subdiagonal elements of the tridiagonal matrix, with e[1] arbitrary. On output e is
+     * destroyed.
+     */
+    template<int n, typename T>
+     inline bool tri_ql_implicit_zq(ZQOffsetMatrix<1, n, 0, 0, T> &d,
+        ZQOffsetMatrix<1, n, 0, 0, T> &e, std::string &error
+    {
+        int m, l, iter, i, k;
+        T s, r, p, g, f, dd, c, b;
+
+        // Convenient to renumber the elements of e.
+        for (i=2; i<=n; i++) {
+            e(i-1,0) = e(i,0);
+        }
+        e(n,0) = 0.0;
+
+        for (l=1; l<=n; l++) {
+            iter = 0;
+            do {
+                for (m=l; m<=n-1; m++) {
+                    dd = abs(d(m,0)) + abs(d(m+1, 0));
+                    if (abs(e(m,0)+dd) == dd) {
+                        // TODO fuzzy_equal?
+                        break;
+                    }
+                }
+                if (m != l) {
+                    if (iter == 30) {
+                        error = std::string("tri_ql_implicit_zq too many iterations");
+                        return false;
+                    }
+                    iter++;
+                    // Form shift.
+                    g = (d(l+1, 0) - d(l,0))/(2.0*e(l,0));
+                    
+                    r = hypot(g, 1.0);
+                    // This is dm - ks.
+                    g = d(m,0) - d(l,0) + e(l,0)/(g+sign(r,g));
+                    s = c = 1.0;
+                    p = 0.0;
+                    for (i=m-1; i>=1; i--) {
+                        /*
+                         * A plane rotation as in the original QL, followed by
+                         * Givens rotations to restore tridiagonal form.
+                         */
+                        f = s*e(i,0);
+                        b = c*e(i,0);
+                        r = hypot(f,g);
+                        e(i+1) = r;
+                        if (r == 0.0) {
+                            // Recover from undeflow.
+                            d(i+1,0) -= p;
+                            e(m,0) = 0.0;
+                            break;
+                        }
+                        s = f/r;
+                        c = g/r;
+                        g = d(i+1, 0)-p;
+                        r = (d(i, 0)-g)*s+2.0*c*b;
+                        g = c*r-b;
+                    }
+                    if (r == 0.0 && i >= l) {
+                        continue;
+                    }
+                    d(l,0) -= p;
+                    e(l,0) = g;
+                    e(m,0) = 0.0;
+                }
+            } while (m != l);
+        }
+        return true;
+    }
+
+    /*
+     * QL algorithm with implicit shifts, to determine the eigenvalues and eigenvectors of a real, symmetric,
+     * tridiagonal matrix, or of a real, symmetric matrix previously reduced by trireduction_zq. On input, d[1..n]
+     * contains the diagonal elements of the tridiagonal matrix. On output, it returnsthe eigenvalues. The vector
+     * e[1..n] inputs the subdiagonal elements of the tridiagonal matrix, with e[1] arbitrary. On output e is
+     * destroyed. If the eigenvectors of a tridiagonal matrix are desired, the matrix z[1..n][1..n] is input as the
+     * identity matrix. If the eigenvectors of a matrix that has been reduced by trireduction_zq are required, then
+     * z is input as the matrix output by trireduction_zq .In either case, the kth column of z returns the normalized
+     * eigenvector corresponding to d[k].
+     */
+    template<int n, typename T>
+     inline bool tri_ql_implicit_eigvec_zq(ZQOffsetMatrix<1, n, 0, 0, T> &d,
+        ZQOffsetMatrix<1, n, 0, 0, T> &e, ZQOffsetMatrix<1, n, 1, n, T> &z, std::string &error)
+    {
+        int m, l, iter, i, k;
+        T s, r, p, g, f, dd, c, b;
+
+        // Convenient to renumber the elements of e.
+        for (i=2; i<=n; i++) {
+            e(i-1,0) = e(i,0);
+        }
+        e(n,0) = 0.0;
+
+        for (l=1; l<=n; l++) {
+            iter = 0;
+            do {
+                for (m=l; m<=n-1; m++) {
+                    dd = abs(d(m,0)) + abs(d(m+1, 0));
+                    if (abs(e(m,0)+dd) == dd) {
+                        // TODO fuzzy_equal?
+                        break;
+                    }
+                }
+                if (m != l) {
+                    if (iter == 30) {
+                        error = std::string("tri_ql_implicit_zq too many iterations");
+                        return false;
+                    }
+                    iter++;
+                    // Form shift.
+                    g = (d(l+1, 0) - d(l,0))/(2.0*e(l,0));
+                    
+                    r = hypot(g, 1.0);
+                    // This is dm - ks.
+                    g = d(m,0) - d(l,0) + e(l,0)/(g+sign(r,g));
+                    s = c = 1.0;
+                    p = 0.0;
+                    for (i=m-1; i>=1; i--) {
+                        /*
+                         * A plane rotation as in the original QL, followed by
+                         * Givens rotations to restore tridiagonal form.
+                         */
+                        f = s*e(i,0);
+                        b = c*e(i,0);
+                        r = hypot(f,g);
+                        e(i+1) = r;
+                        if (r == 0.0) {
+                            // Recover from undeflow.
+                            d(i+1,0) -= p;
+                            e(m,0) = 0.0;
+                            break;
+                        }
+                        s = f/r;
+                        c = g/r;
+                        g = d(i+1, 0)-p;
+                        r = (d(i, 0)-g)*s+2.0*c*b;
+                        g = c*r-b;
+                        for (k=1; k<=n; k++) {
+                            // Form eigenvectors.
+                            f = z(k,i+1);
+                            z(k,i+1) = s*z(k,i)+c*f;
+                            z(k,i) = c*z(k,i)-s*f;
+                        }
+                    }
+                    d(l,0) -= p;
+                    e(l,0) = g;
+                    e(m,0) = 0.0;
+                }
+            } while (m != l);
+        }
+        return true;
+    }
+
+    /*
+     * Given a matrix a[1..n][1..n], this routine  replaces it by a balanced matrix
+     * with identical eigenvalues. A symmetric matrix is already balanced and is
+     * unaffected by this procedure. The parameter RADIX should be the machine’s
+     * floating-point radix.
+     */
+    template<int n, typename T>
+     inline bool balance_zq(ZQOffsetMatrix<1, n, 1, n, T> &a, std::string &error)
+    {
+        float RADIX = 2.0;
+        int last, j, i;
+        T s, r, g, f, c, sqrdx;
+
+        sqrdx = RADIX * RADIX;
+        last = 0;
+        while (last == 0) {
+            last = 1;
+            // Calculate row and column norms.
+            for (i=1; i<=n; i++) {
+                r=c=0.0;
+                for (j=1; j<=n; j++) {
+                    if (j != i) {
+                        c += abs(a(j,i));
+                        r += abs(a(i,j));
+                    }
+                }
+                // If both are nonzero
+                if (c && r)  {
+                    g=r/RADIX;
+                    f=1.0;
+                    s=c+r;
+                    while (c<g) {
+                        /*
+                         * find the integer power of the machine radix that comes
+                         * closest to balancing the matrix.
+                         */
+                        f *= RADIX;
+                        c *= sqrdx;
+                    }
+                    g = r*RADIX;
+                    while (c>g) {
+                        f /= RADIX;
+                        c /= sqrdx;
+                    }
+                    if ((c+r)/f < 0.95*s) {
+                        last=0;
+                        g=1.0/f;
+                        // Apply similarity transformation.
+                        for (j=1; j<=n; j++) {
+                            a(i,j) *= g;
+                        }
+                        for (j=1; j<=n; j++) {
+                            a(j,i) *= f;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+     * Reduction to Hessenberg form by the elimination method. The real, nonsymmetric
+     * matrix a[1..n][1..n] is replaced by an upper Hessenberg matrix with identical
+     * eigenvalues. Recommended, but not required, is that this routine be preceded
+     * by balance_zq. On output, the Hessenberg matrix is in elements a[i][j] with
+     * i≤j+1. Elements with i>j+1 are to bethought of as zero, but are returned
+     * with random values.
+     */
+    template<int n, typename T>
+     inline bool eliminate_hessenberg_zq(ZQOffsetMatrix<1, n, 1, n, T> &a, std::string &error)
+    {
+        int m, j, i;
+        T y, x;
+
+        for (m=2; m<n; m++) {
+            x=0.0;
+            i=m;
+            // Find the pivot.
+            for (j=m; j<=n; j++) {
+                if (abs(a(j,m-1)) > abs(x)) {
+                    x=a(j,m-1);
+                    i=j;
+                }
+            }
+            if (i != m) {
+                // Interchange rows and columns.
+                for (j=m-1; j<=n; j++) {
+                    y=a(i,j);
+                    a(i,j) = a(m,j);
+                    a(m,j) = y;
+                }
+                for (j=1; j<=n; j++) {
+                    y=a(j,i);
+                    a(j,i) = a(j,m);
+                    a(j,m) = a(j,i);
+                }
+            }
+            if (x) {
+                // Carry out the elimination.
+                for (i=m+1; i<=n; i++) {
+                    y = a(i,m-1);
+                    if (y != 0.0) {
+                        y /= x;
+                        a(i,m-1) = y;
+                        for (j=m; j<=n; j++) {
+                            a(i,j) -= y*a(m,j);
+                        }
+                        for (j=1; j<=n; j++) {
+                            a(j,m) += y*a(j,i);
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /*
+     * Finds all eigenvalues of an upper Hessenberg matrix a[1..n][1..n]. On input a can
+     * be exactly as output from eliminate_hessenberg_zq; on output it is destroyed. The
+     * real and imaginary parts of the eigenvalues are returned in wr[1..n] and wi[1..n],
+     * respectively.
+     */
+    template<int n, typename T>
+     inline bool eigen_hess_qr_zq(ZQOffsetMatrix<1, n, 1, n, T> &a,
+        ZQOffsetMatrix<1, n, 0, 0, T> &wr, ZQOffsetMatrix<1, n, 0, 0, T> &wi, std::string &error)
+    {
+        int nn, m, l, k, j, its, i, mmin;
+        T z, y, x, w, u, t, s, r, q, p, anorm;
+
+        // Compute matrix norm for possible use in locating single small subdiagonal element.
+        anorm = 0.0;
+        for (i=1; i<=n; i++) {
+            for (j=max(i-1,1); j<=n; j++) {
+                anorm += abs(a(i,j));
+            }
+        }
+        nn=n;
+
+        // Gets changed only by an exceptional shift.
+        t=0.0;
+        
+        // Begin search for next eigenvalue.
+        while (nn >= 1) {
+            its=0;
+            do {
+                for (l=nn; l>=2; l--) {
+                    // Begin iteration: look for single small subdiagonal element.
+                    s = abs(a(l-1,l-1)) + abs(a(l,l));
+                    if (s == 0.0) {
+                        s=anorm;
+                    }
+                    if (abs(a(l,l-1)) + s == s) {
+                        a(l,l-1) = 0.0;
+                        break;
+                    }
+                }
+                x=a(nn,nn);
+                if (l == nn) {
+                    // One root found.
+                    wr(nn,0) = x+t;
+                    wi(nn,0) = 0.0;
+                    nn--;
+                }
+                else {
+                    y = a(nn-1,nn-1);
+                    w = a(nn,nn-1) * a(nn-1,nn);
+                    if (l == nn-1) {
+                        // Two roots found.
+                        p=0.5*(y-x);
+                        q=p*p+w;
+                        z=sqrt(abs(q));
+                        x += t;
+                        if (q >= 0.0) {
+                            // A real pair.
+                            z=p*sign(z,p);
+                            wr(nn-1, 0) = wr(nn, 0) = x+z;
+                            if (z) {
+                                wr(nn,0) = x-w/z;
+                            }
+                            wi(nn-1, 0) = wi(nn, 0) = 0.0;
+                        }
+                        else {
+                            // A complex pair.
+                            wr(nn-1, 0) = wr(nn,0) = x+p;
+                            wi(nn, 0) = z;
+                            wi(nn-1, 0) = -wi(nn, 0);
+                        }
+                        nn -= 2;
+                    }
+                    else {
+                        // No roots found. Continue iteration.
+                        if (its == 30) {
+                            error = std::string("Too many iterations in eigen_hess_qr_zq");
+                            return false;
+                        }
+                        if (its == 10 || its == 20) {
+                            // Form exceptional shift.
+                            t = x;
+                            for (i=1; i<=nn; i++) {
+                                a(i,i) -= x;
+                            }
+                            s = abs(a(nn,nn-1)) + abs(a(nn-1,nn-2));
+                            y=x=0.75*s;
+                            w = -0.4375*s*s;
+                        }
+                        ++its;
+                        for (m=nn-2; m>=l; m--) {
+                            // Form shift and then look for 2 consecutive small sub-diagonal elements.
+                            z = a(m,m);
+                            r=x-z;
+                            s=y-z;
+                            p = (r*s-w) / a(m+1,m) + a(m,m+1);
+                            q = a(m+1,m+1)-z-r-s;
+                            r = a(m+2,m+1);
+                            // Scale to prevent overflow or underflow.
+                            s = abs(p) + abs(q) + abs(r);
+                            p /= s;
+                            q /= s;
+                            r /= s;
+                            if (m == l) {
+                                break;
+                            }
+                            u = abs(a(m,m-1)) * (abs(q)+abs(r));
+                            v = abs(p) * (abs(a(m-1,m-1)) + abs(z) + abs(a(m+1,m+1)));
+                            if (u+v == v) {
+                                break;
+                            }
+                        }
+                        for (i=m+2; i<=nn; i++) {
+                            a(i,i-2) = 0.0;
+                            if (i != m+2) {
+                                a(i,i-3) = 0.0;
+                            }
+                        }
+                        for (k=m; k<=nn-1; k++) {
+                            // Double QR step on rows l to nn and columns m to nn.
+                            if (k != m) {
+                                // Begin setup of Householder vector.
+                                p = a(k,k-1);
+                                q = a(k+1,k-1);
+                                r = 0.0;
+                                if (k != (nn-1)) {
+                                    r=a(k+2,k-1);
+                                }
+                                x = abs(p)+abs(q)+abs(r);
+                                if (x != 0.0) {
+                                    // Scale to prevent overflow or underflow.
+                                    p /= x;
+                                    q /= x;
+                                    r /= x;
+                                }
+                            }
+                            s = sign(sqrt(p*p + q*q + r*r), p);
+                            if (s != 0.0) {
+                                if (k == m) {
+                                    if (l != m) {
+                                        a(k,k-1) = -a(k,k-1);
+                                    }
+                                }
+                                else {
+                                    a(k,k-1) = -s*x;
+                                }
+                                p += s;
+                                x=p/s;
+                                y=q/s;
+                                z=r/s;
+                                q /= p;
+                                r /= p;
+                                for (j=k; j<=nn; j++) {
+                                    // Row modification.
+                                    p = a(k,j) + q*a(k+1,j)
+                                    if (k != nn-1) {
+                                        p += r*a(k+2,j);
+                                        a(k+2,j) -= p*z;
+                                    }
+                                    a(k+1,j) -= p*y;
+                                    a(k,j) -= p*x;
+                                }
+                                mmin = nn<k+3 ? nn : k+3;
+                                for (i=l; i<=mmin; i++) {
+                                    // Column modification.
+                                    p=x*a(i,k) + y*a(i,k+1);
+                                    if (k != nn-1) {
+                                        p += z*a(i,k+2);
+                                        a(i,k+2) -= p*r;
+                                    }
+                                    a(i,k+1) -= p*q;
+                                    a(i,k) -= p;
+                                }
+                            }
+                        }
+                    }
+                }
+            } while (l < nn-1);
         }
         return true;
     }

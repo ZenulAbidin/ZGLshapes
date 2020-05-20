@@ -78,6 +78,23 @@ namespace z_linalg {
             return A;
         }
 
+        template<int M_, int N_>
+         friend inline ZQMatrix<M_, N_, T> concat(ZQMatrix<M, N, T> m1, ZQMatrix<M_-M, N_-N, T> m2, T fillval=0.0) {
+            assert(M_ > M /* "concatenated row size is less than original row size" */);
+            assert(N_ > N /* "concatenated column size is less than original column size" */);
+            ZQMatrix<M_, N_> A;
+            A.fill(fillval);
+            for (int row = 0; row < M; ++row) {
+                for (int col = 0; col < N; ++col)
+                    A.m[col][row] = m1.m[col][row];
+            }
+            for (int row = 0; row < M_-M; ++row) {
+                for (int col = 0; col < N_-N; ++col)
+                    A.m[col+N][row+M] = m2.m[col][row];
+            }
+            return A;
+        }
+
 
         T m[N][M];    // Column-major order to match OpenGL.
 
